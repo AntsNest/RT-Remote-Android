@@ -22,16 +22,21 @@
     <string name="pcview_menu_delete_pc">Delete PC</string>
     <string name="pcview_menu_test_network">Test Network Connection</string>
     <string name="pcview_menu_details">View Details</string>
-    <string name="pcview_menu_eol">NVIDIA GameStream End-of-Service</string>
+    <string name="pcview_menu_eol">About streaming hosts</string>
 
     <!-- Network test strings -->
     <string name="nettest_title_waiting">Testing Network Connection</string>
     <string name="nettest_text_waiting">RT Remote is testing your network connection to determine if any required ports are blocked.\n\nThis may take a few seconds…</string>
     <string name="nettest_title_done">Network Test Complete</string>
-    <string name="nettest_text_success">Your network does not appear to be blocking RT Remote. If you still have trouble connecting, check your PC\'s firewall settings.\n\nIf you are trying to stream over the Internet, install the RT Remote Internet Hosting Tool on your PC and run the included Internet Streaming Tester to check your PC\'s Internet connection.</string>
-    <string name="nettest_text_inconclusive">The network test could not be performed because none of RT Remote\'s connection testing servers were reachable. Check your Internet connection or try again later.</string>
-    <string name="nettest_text_failure">Your device\'s current network connection seems to be blocking RT Remote. Streaming over the Internet may not work while connected to this network.\n\nThe following network ports were blocked:\n</string>
-    <string name="nettest_text_blocked">Your device\'s current network connection is blocking RT Remote. Streaming over the Internet may not work while connected to this network.</string>
+    <string name="nettest_text_success">Your network does not appear to be blocking RT Remote. If you still have trouble connecting, check the firewall on the PC.
+
+RT Remote reaches the PC over the mesh, so the PC must be connected to the mesh too.</string>
+    <string name="nettest_text_inconclusive">The network test could not run because the test servers were unreachable. Check your Internet connection and try again.</string>
+    <string name="nettest_text_failure">This network seems to be blocking RT Remote.
+
+Blocked ports:
+</string>
+    <string name="nettest_text_blocked">This network is blocking RT Remote. Try another network, or connect through the mesh.</string>
 
     <!-- Pair messages -->
     <string name="pairing">Pairing…</string>
@@ -39,7 +44,7 @@
     <string name="pair_pc_ingame">Computer is currently in a game. You must close the game before pairing.</string>
     <string name="pair_pairing_title">Pairing</string>
     <string name="pair_pairing_msg">Please enter the following PIN on the target PC:</string>
-    <string name="pair_pairing_help">If your host PC is running Sunshine, navigate to the Sunshine web UI to enter the PIN.</string>
+    <string name="pair_pairing_help">AntsTalk normally enters this PIN for you. If it did not, open the streaming host settings on the PC and enter it there.</string>
     <string name="pair_incorrect_pin">Incorrect PIN</string>
     <string name="pair_fail">Pairing failed</string>
     <string name="pair_already_in_progress">Pairing already in progress</string>
@@ -63,9 +68,9 @@
     <string name="error_pc_offline">Computer is offline</string>
     <string name="error_manager_not_running">The ComputerManager service is not running. Please wait a few seconds or restart the app.</string>
     <string name="error_unknown_host">Failed to resolve host</string>
-    <string name="error_404">GFE returned an HTTP 404 error. Make sure your PC is running a supported GPU.
-	    Using remote desktop software can also cause this error. Try rebooting your machine or reinstalling GFE.
-    </string>
+    <string name="error_404">The host answered with HTTP 404. Make sure its streaming host is running and the PC has a working GPU encoder.
+
+Remote desktop software running on the PC can also cause this. Restarting the PC often clears it.</string>
     <string name="title_decoding_error">Video Decoder Crashed</string>
     <string name="message_decoding_error">RT Remote has crashed due to an incompatibility with this device\'s video decoder. Try adjusting the streaming settings if the crashes continue.</string>
     <string name="title_decoding_reset">Video Settings Reset</string>
@@ -95,8 +100,9 @@
 
     <!-- General strings -->
     <string name="ip_hint">IP address of host PC</string>
-    <string name="searching_pc">Searching for host PCs on your local network…\n\n
-        Ensure Sunshine is running on your host PC or GameStream is enabled in the GeForce Experience SHIELD settings.</string>
+    <string name="searching_pc">Looking for PCs on the mesh…
+
+        Make sure the PC is connected to the mesh and its streaming host is on (AntsTalk → Plugins → Streaming host).</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="lost_connection">Lost connection to PC</string>
@@ -148,7 +154,13 @@
     <string name="title_resolution_list">Video resolution</string>
     <string name="summary_resolution_list">Increase to improve image clarity. Decrease for better performance on lower end devices and slower networks.</string>
     <string name="title_native_res_dialog">Native Resolution Warning</string>
-    <string name="text_native_res_dialog">Native resolution and/or FPS may not be supported by the streaming server. You will probably need to configure a matching custom display mode for the host PC manually.\n\nIf you choose to create a custom resolution in NVIDIA Control Panel to match your screen settings, please ensure you have read and understood NVIDIA\'s warning regarding possible monitor damage, PC instability, and other potential problems.\n\nWe are not responsible for any problems resulting from creating a custom resolution on your PC.\n\nIt may be that your monitor does not support a necessary display configuration. If so, you may try to set up a virtual monitor. Finally, if your device or host PC does not support streaming at a specific resolution or refresh rate, you\'re out of luck unfortunately.</string>
+    <string name="text_native_res_dialog">The host may not support this resolution or frame rate. In that case you need to add a matching display mode on the PC yourself.
+
+Creating a custom resolution in your graphics driver carries risks the driver vendor warns about — monitor damage, instability and so on. Read their warning first.
+
+We are not responsible for problems caused by a custom resolution on your PC.
+
+If your monitor cannot do the mode you need, a virtual monitor is worth trying.</string>
     <string name="title_fps_list">Video frame rate</string>
     <string name="summary_fps_list">Increase for a smoother video stream. Decrease for better performance on lower end devices.</string>
     <string name="title_seekbar_bitrate">Video bitrate</string>
@@ -231,7 +243,7 @@
 
     <string name="category_host_settings">Host Settings</string>
     <string name="title_checkbox_enable_sops">Optimize game settings</string>
-    <string name="summary_checkbox_enable_sops">Allow GFE to modify game settings for optimal streaming</string>
+    <string name="summary_checkbox_enable_sops">Let the host pick game settings that suit streaming.</string>
     <string name="title_checkbox_host_audio">Play audio on PC</string>
     <string name="summary_checkbox_host_audio">Play audio from the computer and this device</string>
 

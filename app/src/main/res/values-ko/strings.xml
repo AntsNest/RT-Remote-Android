@@ -36,9 +36,9 @@
     <string name="error_pc_offline">컴퓨터가 오프라인 상태입니다</string>
     <string name="error_manager_not_running">ComputerManager 서비스가 실행되지 않고 있습니다. 잠시 기다리거나 앱을 다시 시작하세요.</string>
     <string name="error_unknown_host">호스트 응답에 실패함</string>
-    <string name="error_404">GFE가 HTTP 404에러를 보냈습니다. 지원되는 GPU가 설치되어 있는지 확인하세요.
-	    원격 데스트톱 응용 프로그램을 사용하는 것도 이 에러를 유발할 수 있습니다. PC를 다시 시작하거나 Geforce Experience를 다시 설치해보세요. 
-    </string>
+    <string name="error_404">호스트가 HTTP 404 를 돌려보냈습니다. 스트리밍 호스트가 돌고 있는지, PC 에 쓸 수 있는 GPU 인코더가 있는지 확인하세요.
+
+PC 에서 돌고 있는 다른 원격 프로그램도 이 오류를 내냅니다. PC 를 다시 시작하면 대개 풀립니다.</string>
     <!-- Start application messages -->
     <string name="conn_establishing_title">연결 시도중</string>
     <string name="conn_establishing_msg">연결 시작</string>
@@ -53,9 +53,9 @@
     <string name="conn_terminated_msg">연결이 종료되었습니다</string>
     <!-- General strings -->
     <string name="ip_hint">호스트 PC의 IP 주소</string>
-    <string name="searching_pc">로컬 네트워크의 호스트 PC를 검색중…
-\n
-\n 호스트 PC에서 Sunshine이 실행 중인지 또는 GeForce Experience SHIELD 설정에서 GameStream이 활성화되어 있는지 확인하십시오.</string>
+    <string name="searching_pc">메시에서 PC 를 찾는 중…
+
+ PC 가 메시에 연결돼 있고 스트리밍 호스트가 쾜져 있는지 확인하세요(앤츠톡 → 플러그인 → 스트리밍 호스트).</string>
     <string name="yes">예</string>
     <string name="no">아니오</string>
     <string name="lost_connection">PC 연결 끊김</string>
@@ -107,7 +107,7 @@
     <string name="summary_checkbox_small_icon_mode">한 화면에서 더 많은 게임을 볼 수 있게 게임을 더 작게 표시합니다</string>
     <string name="category_host_settings">호스트 설정</string>
     <string name="title_checkbox_enable_sops">게임 설정 최적화</string>
-    <string name="summary_checkbox_enable_sops">최적의 스트리밍을 위해 Geforce Experience가 게임 설정을 수정하도록 허용합니다.</string>
+    <string name="summary_checkbox_enable_sops">스트리밍에 맞는 게임 설정을 호스트가 고르게 합니다.</string>
     <string name="title_checkbox_host_audio">PC에서 소리 재생</string>
     <string name="summary_checkbox_host_audio">이 장치와 컴퓨터에서 소리를 재생합니다.</string>
     <string name="category_advanced_settings">고급 설정</string>
@@ -125,13 +125,13 @@
     <string name="resolution_prefix_native">네이티브</string>
     <string name="summary_fps_list">높을수록 화면이 더 부드러워집니다. 저사양 기기에서는 낮추는것이 좋습니다.</string>
     <string name="title_fps_list">FPS 설정</string>
-    <string name="text_native_res_dialog">네이티브 해상도 및 FPS는 스트리밍 서버에서 지원하지 않을 수 있습니다. 호스트 PC에 대해 일치하는 사용자 지정 디스플레이 모드를 수동으로 구성해야 할 수 있습니다.
-\n
-\n화면 설정과 일치하도록 NVIDIA 제어판에서 사용자 정의 해상도를 생성 할 경우 모니터 손상, PC 불안정 및 기타 잠재적인 문제에 대한 NVIDIA의 경고를 읽고 이해했는지 확인하십시오.
-\n
-\nRT Remote는 PC에서 사용자 지정 해상도를 생성하여 발생하는 문제에 대해 책임을 지지 않습니다.
-\n
-\n모니터가 필요한 디스플레이 구성을 지원하지 않을 경우 가상 모니터 설정을 시도할 수 있습니다. 장치나 호스트 PC가 특정 해상도나 새로 고침 빈도로 스트리밍을 지원하지 않을 수 있습니다.</string>
+    <string name="text_native_res_dialog">호스트가 이 해상도나 주사율을 못 받을 수 있습니다. 그럴 때는 PC 에서 맞는 화면 모드를 직접 만들어줘야 합니다.
+
+그래픽 드라이버에서 사용자 정의 해상도를 만드는 일은 제조사가 경고하는 위험을 따릅니다. 모니터 손상, 불안정 등을 먼저 읽으세요.
+
+사용자 정의 해상도로 생긴 문제에 대해 저희는 책임지지 않습니다.
+
+모니터가 그 모드를 못 내면 가상 모니터를 써 볼 만합니다.</string>
     <string name="title_native_res_dialog">네이티브 해상도 주의사항</string>
     <string name="addpc_wrong_sitelocal">주소가 잘못된 것 같습니다. 인터넷을 통해 스트리밍하려면 라우터의 공용 IP 주소를 사용해야합니다.</string>
     <string name="applist_details_id">앱 ID:</string>
@@ -265,8 +265,8 @@
     <string name="title_checkbox_gamepad_motion_sensors">컨트롤러 모션 센서 사용 허용</string>
     <string name="summary_checkbox_gamepad_motion_sensors">모션 센서가 있는 컨트롤러를 에뮬레이션할 때 지원되는 호스트가 모션 센서 데이터를 요청할 수 있습니다. 비활성화하면 게임에서 동작 센서를 사용하지 않는 경우 전원 및 네트워크 사용량이 약간 줄어들 수 있습니다.</string>
     <string name="summary_checkbox_gamepad_touchpad_as_mouse">터치패드로 컨트롤러를 에뮬레이션하는 경우에도 호스트 마우스를 제어하기 위해 컨트롤러 터치패드 입력을 강제합니다.</string>
-    <string name="pcview_menu_eol">NVIDIA GameStream 지원 종료</string>
-    <string name="pair_pairing_help">호스트 PC에서 Sunshine을 실행 중인 경우 Sunshine 웹 UI로 이동하여 PIN을 입력합니다.</string>
+    <string name="pcview_menu_eol">스트리밍 호스트 안내</string>
+    <string name="pair_pairing_help">보통은 앤츠톡이 이 PIN 을 대신 넣어줍니다. 안 됐다면 PC 의 스트리밍 호스트 설정을 열어 직접 넣으세요.</string>
     <string name="perf_overlay_hostprocessinglatency">호스트 처리 대기 시간 최소/최대/평균: %1$.1f/%2$.1f/%3$.1f ms</string>
     <string name="fps_suffix_fps">FPS</string>
     <string name="title_native_fps_dialog">네이티브 FPS 주의사항</string>
