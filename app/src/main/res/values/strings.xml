@@ -319,4 +319,6 @@ If your monitor cannot do the mode you need, a virtual monitor is worth trying.<
     <string name="hint_add_pc_address">Enter the mesh address of the PC. AntsTalk fills this in for you.</string>
     <string name="action_add_pc">Add</string>
     <string name="subtitle_app_list">Pick what to stream</string>
+    <string name="hint_keyboard">Keyboard  ·  or tap with three fingers</string>
+    <string name="app_title">RT Remote</string>
 </resources>

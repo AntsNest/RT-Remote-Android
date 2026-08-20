@@ -50,4 +50,48 @@
         android:preferKeepClear="true"
         android:visibility="gone" />
 
+    <!--
+        가상 키보드 단추.
+
+        블루투스 키보드가 없으면 세 손가락 탭으로 키보드를 부를 수 있는데,
+        버튼도 메뉴도 안내도 없어서 모르면 평생 못 찾는다. 그렇다고 늘 띄워
+        두면 스트리밍 화면을 가려 거슬린다.
+
+        그래서 붙자마자 잠깐만 보여준다. 그때 눌러도 되고, 사라진 뒤에는 세
+        손가락 탭으로 부르면 된다 — 그 방법이 있다는 것만 알면 된다.
+
+        왼쪽 아래에 둔다. 오른쪽 위는 연결 상태 알림이 쓰고, 오른쪽 아래는
+        윈도우 시계·트레이와 겹친다.
+    -->
+    <LinearLayout
+        android:id="@+id/keyboardHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/ants_pill"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="10dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_keyboard" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="9dp"
+            android:text="@string/hint_keyboard"
+            android:textColor="#FFFFFFFF"
+            android:textSize="13sp" />
+    </LinearLayout>
+
 </merge>

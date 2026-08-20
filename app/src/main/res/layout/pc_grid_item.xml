@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    PC 한 대 — 앤츠톡 원격지원의 카드 행 모양.
+    PC 한 대.
 
-    격자에 작은 정사각형을 늘어놓으면, PC 가 한두 대뿐인 보통의 경우에 화면
-    왼쪽 위에 작은 카드 하나만 덩그러니 남는다. 앤츠톡 원격지원은 같은 상황을
-    가로로 꽉 찬 행으로 보여준다 — 한 대여도 허전하지 않고, 이름이 길어도
-    잘리지 않는다.
+    카드마다 앱 아이콘과 같은 그림을 큼직하게 넣었더니 목록이 아이콘 밭이 되고,
+    정작 봐야 할 PC 이름이 뒤로 밀렸다. 앱을 나타내는 그림은 헤더에 한 번만
+    두고, 여기서는 이름을 앞세운다.
 
-    id 는 그대로 둔다 — GenericGridAdapter 가 이 이름들로 값을 넣는다.
-    grid_overlay(자물쇠·오프라인)와 grid_spinner 는 아이콘 위에 겹쳐 놓는다.
+    상태(짝 맺음·오프라인·확인 중)는 오른쪽 끝에 작게 붙인다. 이름을 읽는 데
+    방해가 되지 않으면서, 눌러도 되는지 아닌지는 알 수 있어야 한다.
+
+    id 는 그대로 둔다 — GenericGridAdapter 가 네 뷰를 모두 찾아 쓴다.
+    하나라도 없으면 목록을 그리다 죽는다.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="5dp"
-    android:paddingTop="5dp"
-    android:paddingEnd="5dp"
-    android:paddingBottom="5dp">
+    android:padding="5dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,47 +23,15 @@
         android:background="@drawable/ants_card"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingTop="14dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="14dp">
-
-        <FrameLayout
-            android:id="@+id/grid_image_layout"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:background="@drawable/ants_icon_box">
-
-            <ImageView
-                android:id="@+id/grid_image"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:layout_gravity="center"
-                android:contentDescription="@null" />
-
-            <ImageView
-                android:id="@+id/grid_overlay"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_gravity="bottom|end"
-                android:layout_marginEnd="3dp"
-                android:layout_marginBottom="3dp"
-                android:contentDescription="@null" />
-
-            <ProgressBar
-                android:id="@+id/grid_spinner"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:layout_gravity="center"
-                android:indeterminate="true"
-                android:indeterminateTint="@color/ants_accent" />
-        </FrameLayout>
+        android:paddingStart="20dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="20dp">
 
         <TextView
             android:id="@+id/grid_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_weight="1"
             android:ellipsize="end"
             android:maxLines="2"
@@ -72,9 +39,40 @@
             android:textSize="17sp"
             android:textStyle="bold" />
 
+        <!-- 상태 자리. 어댑터가 grid_image 에 PC 그림을, grid_overlay 에
+             자물쇠 같은 표시를 넣는다. 둘을 겹쳐 하나처럼 보이게 한다. -->
+        <FrameLayout
+            android:id="@+id/grid_image_layout"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginStart="10dp">
+
+            <ImageView
+                android:id="@+id/grid_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.45"
+                android:contentDescription="@null" />
+
+            <ImageView
+                android:id="@+id/grid_overlay"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_gravity="bottom|end"
+                android:contentDescription="@null" />
+
+            <ProgressBar
+                android:id="@+id/grid_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/ants_accent" />
+        </FrameLayout>
+
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="6dp"
             android:contentDescription="@null"
             android:src="@drawable/ic_chevron_right" />
     </LinearLayout>

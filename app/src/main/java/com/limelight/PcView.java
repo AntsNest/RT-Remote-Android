@@ -622,6 +622,18 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
         }).start();
     }
 
+    /**
+     * PC 를 고르면 바로 그 PC 의 바탕화면으로 들어간다.
+     *
+     * 상류(문라이트)는 게임 스트리밍이 목적이라 PC 를 고른 다음 무엇을 스트리밍할지
+     * 한 번 더 고르게 한다. 우리는 원격 제어가 목적이고 고를 것은 언제나
+     * 바탕화면 하나다 — 그 화면은 매번 한 번 더 누르게 만드는 일 말고는 하는 게
+     * 없다.
+     *
+     * 목록을 못 받거나 바탕화면 항목이 없으면 예전처럼 고르는 화면을 연다.
+     * 우리가 모르는 구성의 호스트일 수 있고, 그때 아무 데도 못 가게 막는 것보다는
+     * 한 단계 더 밟더라도 길이 있는 편이 낫다.
+     */
     private void doAppList(ComputerDetails computer, boolean newlyPaired, boolean showHiddenGames) {
         if (computer.state == ComputerDetails.State.OFFLINE) {
             Toast.makeText(PcView.this, getResources().getString(R.string.error_pc_offline), Toast.LENGTH_SHORT).show();
@@ -632,6 +644,55 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
             return;
         }
 
+        // 숨은 앱까지 보자고 들어온 길(길게 누르기)에서는 고르는 화면을 그대로 연다.
+        if (!showHiddenGames) {
+            startDesktopDirectly(computer, newlyPaired);
+            return;
+        }
+
+        openAppList(computer, newlyPaired, showHiddenGames);
+    }
+
+    private void startDesktopDirectly(final ComputerDetails computer, final boolean newlyPaired) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                NvApp desktop = null;
+                try {
+                    NvHTTP http = new NvHTTP(ServerHelper.getCurrentAddressFromComputer(computer),
+                            computer.httpsPort, managerBinder.getUniqueId(), computer.serverCert,
+                            PlatformBinding.getCryptoProvider(PcView.this));
+                    for (NvApp app : http.getAppList()) {
+                        // 호스트가 주는 이름 그대로 찾는다. Sunshine 은 "Desktop",
+                        // 한국어 환경에서도 이 항목만은 영문으로 온다.
+                        if (app.getAppName() != null && app.getAppName().equalsIgnoreCase("Desktop")) {
+                            desktop = app;
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    LimeLog.warning("바탕화면 항목을 못 찾음: " + e.getMessage());
+                }
+
+                final NvApp found = desktop;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isFinishing() || isChangingConfigurations()) {
+                            return;
+                        }
+                        if (found != null) {
+                            ServerHelper.doStart(PcView.this, found, computer, managerBinder);
+                        } else {
+                            openAppList(computer, newlyPaired, false);
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    private void openAppList(ComputerDetails computer, boolean newlyPaired, boolean showHiddenGames) {
         Intent i = new Intent(this, AppView.class);
         i.putExtra(AppView.NAME_EXTRA, computer.name);
         i.putExtra(AppView.UUID_EXTRA, computer.uuid);

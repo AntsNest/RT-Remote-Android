@@ -26,26 +26,47 @@
         android:paddingTop="14dp"
         android:paddingBottom="14dp">
 
+        <!-- 앱을 나타내는 아이콘은 여기 한 번만 둔다.
+             카드마다 같은 그림을 넣었더니 목록이 아이콘 밭이 되고, 정작
+             중요한 PC 이름이 뒤로 밀렸다. -->
+        <FrameLayout
+            android:id="@+id/headerMark"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/ants_mark_box">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_computer"
+                android:tint="@color/ants_on_accent" />
+        </FrameLayout>
+
         <LinearLayout
             android:id="@+id/headerText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
+            android:layout_marginStart="13dp"
+            android:layout_toEndOf="@+id/headerMark"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/title_pc_list"
+                android:text="@string/app_title"
                 android:textColor="@color/ants_text"
-                android:textSize="21sp"
+                android:textSize="20sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="2dp"
                 android:text="@string/subtitle_pc_list"
                 android:textColor="@color/ants_text_faint"
                 android:textSize="12sp" />

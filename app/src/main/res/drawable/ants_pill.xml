@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 스트리밍 화면 위에 잠깐 뜨는 단추. 화면을 가리는 물건이라 반투명하게 두고,
+     눌리는 자리라는 것만 알아볼 수 있으면 된다. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#40FFFFFF">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#B31D2738" />
+            <corners android:radius="24dp" />
+            <stroke android:width="1dp" android:color="#40FFD43B" />
+        </shape>
+    </item>
+</ripple>

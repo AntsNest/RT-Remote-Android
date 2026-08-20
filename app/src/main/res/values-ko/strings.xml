@@ -285,4 +285,6 @@ PC 에서 돌고 있는 다른 원격 프로그램도 이 오류를 내냅니다
     <string name="hint_add_pc_address">PC 의 메시 주소를 넣으세요. 앤츠톡에서 열면 자동으로 채워집니다.</string>
     <string name="action_add_pc">추가</string>
     <string name="subtitle_app_list">스트리밍할 것을 고르세요</string>
+    <string name="hint_keyboard">키보드  ·  세 손가락으로 탭 해도 됩니다</string>
+    <string name="app_title">RT Remote</string>
 </resources>
