@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="ic_launcher_background">#565C64</color>
+  <!-- 문라이트 원본의 회색. 브랜딩 포크인데 상류 앱과 구분이 안 됐다.
+       레거시 아이콘의 보라 그라데이션 가운데 색에 맞춘다. -->
+  <color name="ic_launcher_background">#6D3EEE</color>
 </resources>
