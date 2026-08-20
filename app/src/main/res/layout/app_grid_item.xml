@@ -1,29 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    앱 하나(포스터). 포스터가 곧 그림이라 카드 면은 얇게 두고 모서리만 맞춘다.
+
+    글자를 포스터 위에 그대로 얹고 있었다. 밝은 포스터에서는 이름이 읽히지
+    않는다 — 아래에 어두운 띠를 깔고 그 위에 쓴다.
+
+    id 는 그대로 둔다 — AppView 의 어댑터가 이 이름들로 값을 넣는다.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="150dp"
     android:layout_height="200dp"
-    android:padding="10dp">
-    <ImageView
-        android:id="@+id/grid_image"
-        android:cropToPadding="false"
-        android:scaleType="fitXY"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </ImageView>
-    <ImageView
-        android:id="@+id/grid_overlay"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_width="50dp"
-        android:layout_height="50dp">
-    </ImageView>
-    <TextView
-        android:id="@+id/grid_text"
+    android:padding="7dp">
+
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/grid_overlay"
-        android:layout_margin="5dp"
-        android:gravity="center"
-        android:textSize="18sp">
-    </TextView>
-</RelativeLayout>
+        android:background="@drawable/ants_card">
+
+        <ImageView
+            android:id="@+id/grid_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="@null"
+            android:cropToPadding="false"
+            android:scaleType="centerCrop" />
+
+        <!-- 실행 중 표시 등. 어댑터가 이 자리에 그림을 넣는다. -->
+        <ImageView
+            android:id="@+id/grid_overlay"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="10dp"
+            android:contentDescription="@null" />
+
+        <TextView
+            android:id="@+id/grid_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="#CC0B1120"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="2"
+            android:paddingStart="6dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="8dp"
+            android:textColor="@color/ants_text"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+</FrameLayout>

@@ -1,51 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    컴퓨터 추가 — 앤츠톡 원격지원과 같은 얼굴.
+
+    원래는 제목 하나에 입력칸과 확인 버튼이 한 줄로 붙어 있었다. 어두운
+    배경에서 EditText 는 밑줄 하나뿐이라 어디를 눌러야 하는지 잘 안 보였고,
+    무엇을 넣어야 하는지도 hint 한 줄이 전부였다.
+
+    앤츠톡이 딥링크로 열 때는 주소가 이미 채워진 채 들어와 이 화면이 스쳐
+    지나간다. 그래도 손으로 넣는 사람에게는 이 화면이 전부다.
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".preferences.AddComputerManually" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ants_bg"
+    android:fitsSystemWindows="true"
+    tools:context=".preferences.AddComputerManually">
+
+    <!-- 여백은 안쪽에서 준다. 바깥칸은 fitsSystemWindows 로 시스템 인셋을
+         받는데, 그 값이 바깥칸의 padding 을 통째로 덮어쓰기 때문이다. -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
 
     <TextView
         android:id="@+id/manuallyAddPcText"
-        android:text="@string/title_add_pc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:preferKeepClear="true"
-        android:layout_centerHorizontal="true"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_alignParentTop="true"/>
+        android:text="@string/title_add_pc"
+        android:textColor="@color/ants_text"
+        android:textSize="21sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/manuallyAddPcHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/manuallyAddPcText"
+        android:layout_marginTop="6dp"
+        android:text="@string/hint_add_pc_address"
+        android:textColor="@color/ants_text_faint"
+        android:textSize="12.5sp" />
 
     <EditText
         android:id="@+id/hostTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/manuallyAddPcText"
-        android:layout_toLeftOf="@+id/addPcButton"
-        android:layout_toStartOf="@+id/addPcButton"
-        android:layout_marginTop="25dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:ems="10"
-        android:singleLine="true"
-        android:preferKeepClear="true"
+        android:layout_below="@+id/manuallyAddPcHint"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/ants_field"
+        android:hint="@string/ip_hint"
         android:inputType="textNoSuggestions"
-        android:hint="@string/ip_hint" >
-        
+        android:paddingStart="16dp"
+        android:paddingTop="15dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="15dp"
+        android:preferKeepClear="true"
+        android:singleLine="true"
+        android:textColor="@color/ants_text"
+        android:textColorHint="@color/ants_text_faint"
+        android:textSize="16sp">
+
         <requestFocus />
     </EditText>
 
     <Button
         android:id="@+id/addPcButton"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        android:layout_below="@+id/manuallyAddPcText"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/hostTextView"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ants_button"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp"
         android:preferKeepClear="true"
-        android:text="@android:string/ok"/>
-	
+        android:stateListAnimator="@null"
+        android:text="@string/action_add_pc"
+        android:textAllCaps="false"
+        android:textColor="@color/ants_on_accent"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    </RelativeLayout>
 </RelativeLayout>

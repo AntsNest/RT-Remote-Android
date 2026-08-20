@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    앤츠톡 원격지원 화면과 같은 색.
+
+    RT Remote 는 앤츠톡에서 "그래픽 제어" 를 누르면 열리는 앱이다. 그런데
+    문라이트 기본 테마 그대로라, 넘어가는 순간 전혀 다른 앱으로 보였다.
+    같은 흐름 안에 있는 화면끼리는 같은 얼굴이어야 한다.
+
+    밝은 채팅 쪽 색이 아니라 원격지원 쪽 진한 네이비를 쓴다. 이 앱은 결국
+    전체화면 스트리밍으로 들어가고, 밝은 UI 는 그 직전까지 눈을 부시게 하고
+    주변광을 만든다.
+-->
+<resources>
+
+    <!-- 바탕 -->
+    <color name="ants_bg">#FF0B1120</color>
+    <color name="ants_surface">#FF1D2738</color>
+    <color name="ants_surface_alt">#FF1E2A38</color>
+    <color name="ants_surface_pressed">#FF27374B</color>
+
+    <!-- 강조 — 앤츠톡의 노랑 -->
+    <color name="ants_accent">#FFFFD43B</color>
+    <color name="ants_on_accent">#FF1D2738</color>
+
+    <!-- 글자 -->
+    <color name="ants_text">#FFFFFFFF</color>
+    <color name="ants_text_dim">#FFB6C0D0</color>
+    <color name="ants_text_faint">#FF8A94A6</color>
+    <color name="ants_disabled">#FF344157</color>
+
+    <!-- 상태 -->
+    <color name="ants_online">#FF10B981</color>
+    <color name="ants_offline">#FFF87171</color>
+
+    <!-- 테두리 -->
+    <color name="ants_divider">#FF2A3648</color>
+
+</resources>

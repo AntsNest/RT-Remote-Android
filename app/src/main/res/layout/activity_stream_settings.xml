@@ -3,6 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/stream_settings"
+    android:background="@color/ants_bg"
+    android:fitsSystemWindows="true"
     tools:context=".preferences.StreamSettings">
 
 </RelativeLayout>

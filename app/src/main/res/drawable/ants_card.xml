@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 앤츠톡 원격지원의 카드. 눌린 상태를 색으로만 알린다 — 그림자를 쓰면
+     어두운 배경에서는 보이지 않고 오버드로만 늘어난다. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/ants_surface_pressed">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/ants_surface" />
+            <corners android:radius="22dp" />
+        </shape>
+    </item>
+</ripple>

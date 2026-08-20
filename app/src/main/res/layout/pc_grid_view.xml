@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+    <!-- 배경을 주지 않는다. 이 격자는 "검색 중" 표시 위에 나중에 그려져서,
+         불투명한 배경을 깔면 그 표시를 통째로 가린다(실측 2026-08-21:
+         화면 가운데가 빈 채로 아무 말도 없었다). 색은 액티비티가 낸다. -->
 <GridView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/fragmentView"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:numColumns="auto_fit"
-    android:columnWidth="160dp"
-    android:stretchMode="spacingWidthUniform"
+    android:columnWidth="330dp"
+    android:stretchMode="columnWidth"
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:nextFocusLeft="@id/settingsButton"
     android:clipToPadding="false"
-    android:gravity="center"/>
+    android:gravity="center"
+    android:padding="12dp"
+    android:scrollbars="none"/>

@@ -43,6 +43,9 @@ public class AddComputerManually extends Activity {
     private ComputerManagerService.ComputerManagerBinder managerBinder;
     private final LinkedBlockingQueue<String> computersToAdd = new LinkedBlockingQueue<>();
     private Thread addThread;
+
+    /** rtremote:// 딥링크로 열렸는가 — 그때는 닫기 전에 목록을 직접 띄워야 한다. */
+    private boolean fromDeepLink = false;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, final IBinder binder) {
             managerBinder = ((ComputerManagerService.ComputerManagerBinder)binder);
@@ -199,6 +202,17 @@ public class AddComputerManually extends Activity {
                 public void run() {
                 Toast.makeText(AddComputerManually.this, getResources().getString(R.string.addpc_success), Toast.LENGTH_LONG).show();
 
+                // 딥링크로 왔으면 목록을 직접 띄우고 닫는다.
+                //
+                // 그냥 닫으면 아래에 아무것도 없어 앱이 끝난다. 앞에서 넘겨둔
+                // PIN 과 자동 짝짓기 주소를 받아 갈 화면이 바로 PcView 다 —
+                // 띄우지 않으면 그 준비가 전부 헛것이 된다.
+                if (fromDeepLink) {
+                    Intent list = new Intent(AddComputerManually.this, com.limelight.PcView.class);
+                    list.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(list);
+                }
+
                 if (!isFinishing()) {
                     // Close the activity
                     AddComputerManually.this.finish();
@@ -318,6 +332,15 @@ public class AddComputerManually extends Activity {
             // 자동화의 반대말이다 — 앤츠톡은 이미 그 PC 의 주소도 알고,
             // 콘솔에 PIN 을 대신 넣어줄 창구도 갖고 있다. 양쪽에 같은 값을
             // 알려주면 사람이 낄 자리가 없어진다.
+            // 딥링크로 열렸음을 기억한다.
+            //
+            // 평소 이 화면은 PcView 위에 얹혀 있어서, 추가가 끝나고 닫히면 그
+            // 아래 목록으로 돌아가고 거기서 짝짓기가 이어진다. 그런데 딥링크로
+            // 열면 이 화면 하나뿐이라 닫는 순간 앱이 통째로 끝난다 — 쓰는
+            // 사람에게는 "컴퓨터만 추가하고 꺼진다" 로 보인다(실측 2026-08-21).
+            // 아래에서 PcView 를 직접 띄운다.
+            fromDeepLink = true;
+
             String linkedPin = null;
             try { linkedPin = link.getQueryParameter("pin"); } catch (Exception ignored) {}
             if (linkedPin != null && linkedPin.matches("[0-9]{4}")) {

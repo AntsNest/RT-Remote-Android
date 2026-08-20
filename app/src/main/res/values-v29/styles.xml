@@ -1,8 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    실제로 쓰이는 테마는 여기다(API 29+). values/·values-v14/·values-v21/ 의
+    AppBaseTheme 는 이것에 완전히 덮인다.
+
+    앤츠톡 원격지원 화면과 같은 얼굴로 맞춘다 — 거기서 "그래픽 제어" 를 누르면
+    이 앱이 열리는데, 문라이트 기본 테마 그대로라 넘어가는 순간 전혀 다른 앱을
+    연 것처럼 보였다.
+-->
 <resources>
     <style name="AppBaseTheme" parent="android:Theme.Material">
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <!-- Avoid some systems like MIUI which break the visibility of games title -->
+        <!-- 시스템의 강제 다크 변환을 끈다. 우리가 이미 어두운 색을 직접
+             정하고 있어서, 그 위에 한 번 더 뒤집히면 대비가 무너진다. -->
         <item name="android:forceDarkAllowed">false</item>
+
+        <item name="android:windowBackground">@color/ants_bg</item>
+        <item name="android:colorBackground">@color/ants_bg</item>
+        <item name="android:colorAccent">@color/ants_accent</item>
+        <item name="android:colorPrimary">@color/ants_surface</item>
+        <item name="android:colorControlActivated">@color/ants_accent</item>
+        <item name="android:colorControlHighlight">@color/ants_surface_pressed</item>
+        <item name="android:textColorPrimary">@color/ants_text</item>
+        <item name="android:textColorSecondary">@color/ants_text_dim</item>
+        <item name="android:textColorHint">@color/ants_text_faint</item>
     </style>
 </resources>

@@ -1,89 +1,155 @@
-<!-- Portrait orientation only -->
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    PC 목록 — 앤츠톡 원격지원 화면과 같은 얼굴.
+
+    원래는 아이콘 버튼 셋이 화면 왼쪽 위에 아무 설명 없이 붙어 있고, 그 아래로
+    격자가 시작됐다. 처음 열면 여기가 무슨 화면인지, 무엇을 눌러야 하는지가
+    아무 데도 적혀 있지 않았다. 앤츠톡에서 넘어온 사람에게는 더 그렇다 —
+    같은 흐름인데 갑자기 다른 앱이 뜬 것처럼 보인다.
+
+    제목을 두고, 아이콘은 오른쪽에 모은다.
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PcView" >
+    android:background="@color/ants_bg"
+    android:fitsSystemWindows="true"
+    tools:context=".PcView">
+
+    <RelativeLayout
+        android:id="@+id/headerBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="14dp">
+
+        <LinearLayout
+            android:id="@+id/headerText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_pc_list"
+                android:textColor="@color/ants_text"
+                android:textSize="21sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="@string/subtitle_pc_list"
+                android:textColor="@color/ants_text_faint"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/manuallyAddPc"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/ants_icon_button"
+            android:contentDescription="@string/title_add_pc"
+            android:padding="11dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_add"
+            android:tint="@color/ants_accent" />
+
+        <ImageButton
+            android:id="@+id/helpButton"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/manuallyAddPc"
+            android:background="@drawable/ants_icon_button"
+            android:contentDescription="@string/help"
+            android:padding="11dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_help"
+            android:tint="@color/ants_text_dim" />
+
+        <ImageButton
+            android:id="@+id/settingsButton"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/helpButton"
+            android:background="@drawable/ants_icon_button"
+            android:contentDescription="@string/title_settings"
+            android:padding="11dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_settings"
+            android:tint="@color/ants_text_dim" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/headerBar"
+        android:background="@color/ants_divider" />
 
     <RelativeLayout
         android:id="@+id/pcFragmentContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_below="@+id/settingsButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        >
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/headerBar"
+        android:gravity="center">
 
+        <!-- 이 바깥칸은 RelativeLayout 이어야 한다.
+             PcView.initializeViews 가 이 id 를 RelativeLayout 으로 캐스팅한다 —
+             LinearLayout 으로 바꿨더니 앱이 실행 즉시 ClassCastException 으로
+             죽었다(실측 2026-08-21, 에뮬레이터). 세로로 쌓는 일은 안쪽에서 한다. -->
         <RelativeLayout
             android:id="@+id/no_pc_found_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
             android:layout_centerInParent="true"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true">
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
             <ProgressBar
                 android:id="@+id/pcs_loading"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:indeterminate="true"/>
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:indeterminate="true"
+                android:indeterminateTint="@color/ants_accent" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/pcs_loading"
-                android:layout_toEndOf="@+id/pcs_loading"
-                android:layout_marginLeft="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_centerVertical="true"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:layout_marginTop="16dp"
                 android:gravity="center"
-                android:text="@string/searching_pc"/>
+                android:text="@string/searching_pc"
+                android:textColor="@color/ants_text_dim"
+                android:textSize="14sp" />
+
+            <!-- 못 찾았을 때 손 놓고 있지 않도록 다음 할 일을 준다. 예전에는
+                 "검색 중" 만 돌고 있어서, 안 뜨는 게 고장인지 기다리면 되는
+                 것인지 알 수 없었다. -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/hint_pc_not_found"
+                android:textColor="@color/ants_text_faint"
+                android:textSize="12sp" />
+        </LinearLayout>
         </RelativeLayout>
-
     </RelativeLayout>
-
-    <ImageButton
-        android:id="@+id/settingsButton"
-        android:layout_width="70dp"
-        android:layout_height="65dp"
-        android:cropToPadding="false"
-        android:scaleType="fitXY"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:src="@drawable/ic_settings"
-        android:preferKeepClear="true"
-        style="?android:attr/borderlessButtonStyle"/>
-
-    <ImageButton
-        android:id="@+id/helpButton"
-        android:layout_width="70dp"
-        android:layout_height="65dp"
-        android:cropToPadding="false"
-        android:scaleType="fitXY"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/settingsButton"
-        android:layout_toEndOf="@+id/settingsButton"
-        android:src="@drawable/ic_help"
-        android:preferKeepClear="true"
-        style="?android:attr/borderlessButtonStyle"/>
-    
-    <ImageButton
-        android:id="@+id/manuallyAddPc"
-        android:layout_width="70dp"
-        android:layout_height="65dp"
-        android:cropToPadding="false"
-        android:scaleType="fitXY"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/ic_add"
-        android:preferKeepClear="true"
-        style="?android:attr/borderlessButtonStyle"/>
-
 </RelativeLayout>

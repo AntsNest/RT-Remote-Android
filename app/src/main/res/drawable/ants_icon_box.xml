@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 카드 안 아이콘 받침. 앤츠톡 원격지원 카드의 노란 사각 아이콘 자리와 같은
+     역할이지만, 여기 들어가는 그림은 PC 상태(온라인·잠김·오프라인)에 따라
+     달라지므로 색을 입히지 않고 어두운 면만 깐다. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#141C2B" />
+    <corners android:radius="18dp" />
+    <stroke android:width="1dp" android:color="@color/ants_divider" />
+</shape>

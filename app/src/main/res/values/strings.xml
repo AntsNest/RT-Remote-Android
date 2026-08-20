@@ -300,4 +300,11 @@
     <string name="analogscroll_none">None (both sticks move the mouse)</string>
     <string name="analogscroll_right">Right analog stick</string>
     <string name="analogscroll_left">Left analog stick</string>
+    <string name="title_pc_list">Computers</string>
+    <string name="subtitle_pc_list">Pick a PC on the mesh</string>
+    <string name="hint_pc_not_found">Not showing up? Add it with + using its mesh address.</string>
+    <string name="title_settings">Settings</string>
+    <string name="hint_add_pc_address">Enter the mesh address of the PC. AntsTalk fills this in for you.</string>
+    <string name="action_add_pc">Add</string>
+    <string name="subtitle_app_list">Pick what to stream</string>
 </resources>
