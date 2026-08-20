@@ -798,25 +798,32 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
                 || details.pairState == PairState.PAIRED) {
             return;
         }
-        if (!target.equals(addressOf(details))) {
+        if (!hasAddress(details, target)) {
             return;
         }
         autoPairAddress = null;
         doPair(details);
     }
 
-    /** 이 PC 를 가리키는 주소 하나. 어디에 담겨 있든 찾아본다. */
-    private static String addressOf(ComputerDetails details) {
+    /**
+     * 이 PC 가 그 주소로 불릴 수 있는가.
+     *
+     * 주소 하나만 꺼내 견주면 안 된다. Sunshine 은 자기 랜 주소(192.168.x.x)를
+     * 알려주는데, 우리가 아는 이름은 메시 주소(100.77.x.x)다. 먼저 잡히는
+     * 하나를 골라 견주면 서로 다른 주소를 비교하게 되어 영영 안 맞는다.
+     * 담긴 것을 다 훑는다.
+     */
+    private static boolean hasAddress(ComputerDetails details, String target) {
         ComputerDetails.AddressTuple[] candidates = {
-                details.localAddress, details.remoteAddress,
-                details.manualAddress, details.ipv6Address,
+                details.manualAddress, details.localAddress,
+                details.remoteAddress, details.ipv6Address,
         };
         for (ComputerDetails.AddressTuple tuple : candidates) {
-            if (tuple != null && tuple.address != null) {
-                return tuple.address;
+            if (tuple != null && target.equals(tuple.address)) {
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     @Override
