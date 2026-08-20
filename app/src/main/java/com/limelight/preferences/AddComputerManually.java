@@ -322,6 +322,11 @@ public class AddComputerManually extends Activity {
             try { linkedPin = link.getQueryParameter("pin"); } catch (Exception ignored) {}
             if (linkedPin != null && linkedPin.matches("[0-9]{4}")) {
                 com.limelight.PcView.setPresetPin(linkedPin);
+                // 짝짓기도 우리가 시작한다. 사람이 카드를 눌러야 시작되게
+                // 두면 자동이 아니다 — 콘솔은 PIN 을 24초 동안만 PC 에
+                // 밀어넣는데, 그 사이에 목록이 뜨고 사용자가 알아보고 손가락을
+                // 올려야 맞아떨어진다. 실제로 12번 시도가 전부 헛돌았다.
+                com.limelight.PcView.setAutoPairAddress(link.getHost());
             }
 
             String linkedHost = link.getHost();

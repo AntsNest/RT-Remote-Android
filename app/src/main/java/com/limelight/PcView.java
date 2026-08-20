@@ -71,8 +71,22 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
      */
     private static volatile String presetPin = null;
 
+    /**
+     * 앤츠톡이 붙으라고 지목한 주소. 그 PC 가 목록에 뜨면 우리가 알아서
+     * 짝짓기를 시작한다.
+     *
+     * 사람이 카드를 눌러야 시작되게 두면 자동이 아니다. 콘솔은 PIN 을 24초
+     * 동안만 PC 에 밀어넣는데, 그 사이에 목록이 뜨고 사용자가 알아보고 손가락을
+     * 올려야 맞아떨어진다. 실제로 12번 시도가 전부 헛돌았다(2026-08-20).
+     */
+    private static volatile String autoPairAddress = null;
+
     public static void setPresetPin(String pin) {
         presetPin = pin;
+    }
+
+    public static void setAutoPairAddress(String address) {
+        autoPairAddress = address;
     }
 
     private static String consumePresetPin() {
@@ -765,6 +779,44 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
 
         // Notify the view that the data has changed
         pcGridAdapter.notifyDataSetChanged();
+
+        maybeAutoPair(details);
+    }
+
+    /**
+     * 앤츠톡이 지목한 PC 가 떴고 아직 짝이 아니면, 바로 짝짓기를 시작한다.
+     *
+     * 한 번만 한다 — 주소를 지우고 들어간다. 남겨두면 폴링이 돌 때마다 다시
+     * 시도하게 되고, 그건 짝짓기 요청을 계속 새로 만드는 것이라 오히려 안 된다.
+     */
+    private void maybeAutoPair(ComputerDetails details) {
+        String target = autoPairAddress;
+        if (target == null || presetPin == null) {
+            return;
+        }
+        if (details.state != ComputerDetails.State.ONLINE
+                || details.pairState == PairState.PAIRED) {
+            return;
+        }
+        if (!target.equals(addressOf(details))) {
+            return;
+        }
+        autoPairAddress = null;
+        doPair(details);
+    }
+
+    /** 이 PC 를 가리키는 주소 하나. 어디에 담겨 있든 찾아본다. */
+    private static String addressOf(ComputerDetails details) {
+        ComputerDetails.AddressTuple[] candidates = {
+                details.localAddress, details.remoteAddress,
+                details.manualAddress, details.ipv6Address,
+        };
+        for (ComputerDetails.AddressTuple tuple : candidates) {
+            if (tuple != null && tuple.address != null) {
+                return tuple.address;
+            }
+        }
+        return null;
     }
 
     @Override
