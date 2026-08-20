@@ -38,7 +38,7 @@
     <string name="error_unknown_host">호스트 응답에 실패함</string>
     <string name="error_404">호스트가 HTTP 404 를 돌려보냈습니다. 스트리밍 호스트가 돌고 있는지, PC 에 쓸 수 있는 GPU 인코더가 있는지 확인하세요.
 
-PC 에서 돌고 있는 다른 원격 프로그램도 이 오류를 내냅니다. PC 를 다시 시작하면 대개 풀립니다.</string>
+PC 에서 돌고 있는 다른 원격 프로그램도 이 오류를 냅니다. PC 를 다시 시작하면 대개 풀립니다.</string>
     <!-- Start application messages -->
     <string name="conn_establishing_title">연결 시도중</string>
     <string name="conn_establishing_msg">연결 시작</string>
@@ -55,7 +55,7 @@ PC 에서 돌고 있는 다른 원격 프로그램도 이 오류를 내냅니다
     <string name="ip_hint">호스트 PC의 IP 주소</string>
     <string name="searching_pc">메시에서 PC 를 찾는 중…
 
- PC 가 메시에 연결돼 있고 스트리밍 호스트가 쾜져 있는지 확인하세요(앤츠톡 → 플러그인 → 스트리밍 호스트).</string>
+ PC 가 메시에 연결돼 있고 스트리밍 호스트가 켜져 있는지 확인하세요(앤츠톡 → 플러그인 → 스트리밍 호스트).</string>
     <string name="yes">예</string>
     <string name="no">아니오</string>
     <string name="lost_connection">PC 연결 끊김</string>

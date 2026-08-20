@@ -109,8 +109,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     private static final int THREE_FINGER_TAP_THRESHOLD = 300;
 
-    /** 가상 키보드 단추를 보여주는 시간. 알아볼 만큼은 되고, 거슬리기 전에 사라진다. */
-    private static final int KEYBOARD_HINT_MS = 3000;
 
     private ControllerHandler controllerHandler;
     private KeyboardTranslator keyboardTranslator;
@@ -1489,12 +1487,14 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     }
 
     /**
-     * 붙자마자 가상 키보드 단추를 잠깐 보여주고 스스로 사라지게 한다.
+     * 붙으면 가상 키보드 단추를 띄운다.
      *
-     * 키보드를 부르는 길은 세 손가락 탭뿐인데 어디에도 적혀 있지 않아, 모르면
-     * 평생 못 찾는다. 그렇다고 단추를 늘 띄워 두면 스트리밍 화면을 가려 거슬린다.
-     * 그래서 처음 몇 초만 보여준다 — 그때 눌러도 되고, 사라진 뒤에는 배운
-     * 손짓을 쓰면 된다.
+     * 블루투스 키보드가 없을 때 키보드를 부르는 길은 세 손가락 탭뿐인데
+     * 어디에도 적혀 있지 않아, 모르면 평생 못 찾는다.
+     *
+     * 처음에는 몇 초 뒤 스스로 사라지게 했다 — 스트리밍 화면을 가리는 물건이라
+     * 그게 맞다고 봤다. 그런데 왼쪽 아래는 실제로 거슬리지 않는 자리였고,
+     * 남아 있는 편이 매번 손짓을 기억해내는 것보다 낫다. 그대로 둔다.
      */
     private void showKeyboardHint() {
         final View hint = findViewById(R.id.keyboardHint);
@@ -1512,21 +1512,6 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         hint.setAlpha(0f);
         hint.setVisibility(View.VISIBLE);
         hint.animate().alpha(1f).setDuration(200).start();
-
-        hint.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isFinishing() || hint.getVisibility() != View.VISIBLE) {
-                    return;
-                }
-                hint.animate().alpha(0f).setDuration(400).withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        hint.setVisibility(View.GONE);
-                    }
-                }).start();
-            }
-        }, KEYBOARD_HINT_MS);
     }
 
     private byte getLiTouchTypeFromEvent(MotionEvent event) {
