@@ -309,6 +309,21 @@ public class AddComputerManually extends Activity {
         // 고장날 곳을 늘리지 않는 유일한 방법이다.
         android.net.Uri link = getIntent() != null ? getIntent().getData() : null;
         if (link != null && "rtremote".equals(link.getScheme())) {
+            // 앤츠톡이 PIN 도 같이 정해서 넘긴다.
+            //
+            //   rtremote://100.77.1.5?pin=4821
+            //
+            // 원래는 이 앱이 PIN 을 만들어 화면에 띄우고, 사람이 그걸 PC 의
+            // Sunshine 웹 화면에 옮겨 적어야 짝이 맺어졌다. 옮겨 적기는
+            // 자동화의 반대말이다 — 앤츠톡은 이미 그 PC 의 주소도 알고,
+            // 콘솔에 PIN 을 대신 넣어줄 창구도 갖고 있다. 양쪽에 같은 값을
+            // 알려주면 사람이 낄 자리가 없어진다.
+            String linkedPin = null;
+            try { linkedPin = link.getQueryParameter("pin"); } catch (Exception ignored) {}
+            if (linkedPin != null && linkedPin.matches("[0-9]{4}")) {
+                com.limelight.PcView.setPresetPin(linkedPin);
+            }
+
             String linkedHost = link.getHost();
             if (linkedHost != null && !linkedHost.isEmpty()) {
                 if (link.getPort() != -1) {

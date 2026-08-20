@@ -60,6 +60,26 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class PcView extends Activity implements AdapterFragmentCallbacks {
+
+    /**
+     * 앤츠톡이 딥링크로 정해준 페어링 PIN.
+     *
+     * 딥링크를 받는 곳(AddComputerManually)과 실제로 짝을 맺는 곳(여기)이
+     * 서로 다른 액티비티라, 값을 건네려면 잠깐 놓아둘 자리가 필요하다.
+     * 한 번 쓰고 지운다 — 남겨두면 그 다음 손수 페어링까지 이 값으로
+     * 조용히 바뀌어 버린다.
+     */
+    private static volatile String presetPin = null;
+
+    public static void setPresetPin(String pin) {
+        presetPin = pin;
+    }
+
+    private static String consumePresetPin() {
+        String pin = presetPin;
+        presetPin = null;
+        return pin;
+    }
     private RelativeLayout noPcFoundLayout;
     private PcGridAdapter pcGridAdapter;
     private ShortcutHelper shortcutHelper;
@@ -422,12 +442,18 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
                         success = true;
                     }
                     else {
-                        final String pinStr = PairingManager.generatePinString();
+                        // 앤츠톡이 정해준 PIN 이 있으면 그걸 쓴다. 없으면 예전처럼
+                        // 우리가 만들고 화면에 띄운다 — 앤츠톡 없이 이 앱만 쓰는
+                        // 경우가 여전히 있고, 그 길을 막을 이유는 없다.
+                        final String preset = consumePresetPin();
+                        final String pinStr = preset != null ? preset : PairingManager.generatePinString();
 
-                        // Spin the dialog off in a thread because it blocks
-                        Dialog.displayDialog(PcView.this, getResources().getString(R.string.pair_pairing_title),
-                                getResources().getString(R.string.pair_pairing_msg)+" "+pinStr+"\n\n"+
-                                getResources().getString(R.string.pair_pairing_help), false);
+                        if (preset == null) {
+                            // Spin the dialog off in a thread because it blocks
+                            Dialog.displayDialog(PcView.this, getResources().getString(R.string.pair_pairing_title),
+                                    getResources().getString(R.string.pair_pairing_msg)+" "+pinStr+"\n\n"+
+                                    getResources().getString(R.string.pair_pairing_help), false);
+                        }
 
                         PairingManager pm = httpConn.getPairingManager();
 
