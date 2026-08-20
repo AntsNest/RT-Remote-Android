@@ -296,6 +296,34 @@ public class AddComputerManually extends Activity {
             }
         });
 
+        // ── rtremote:// 딥링크 ────────────────────────────────────────
+        //
+        // 앤츠톡에서 "그래픽 제어" 를 누르면 이 앱이 이 경로로 열린다. 사용자가
+        // 주소를 옮겨 적게 하면 아무도 안 쓴다 — 앤츠톡은 이미 그 PC 의 메시
+        // 주소를 알고 있으므로 그대로 넘겨받는다.
+        //
+        //   rtremote://100.77.1.5
+        //
+        // 주소를 채우고 바로 추가를 시작한다. 그 뒤 흐름(페어링·앱 목록)은
+        // 손으로 추가했을 때와 완전히 같다 — 새 경로를 만들지 않는 것이
+        // 고장날 곳을 늘리지 않는 유일한 방법이다.
+        android.net.Uri link = getIntent() != null ? getIntent().getData() : null;
+        if (link != null && "rtremote".equals(link.getScheme())) {
+            String linkedHost = link.getHost();
+            if (linkedHost != null && !linkedHost.isEmpty()) {
+                if (link.getPort() != -1) {
+                    linkedHost = linkedHost + ":" + link.getPort();
+                }
+                hostText.setText(linkedHost);
+                hostText.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleDoneEvent();
+                    }
+                });
+            }
+        }
+
         findViewById(R.id.addPcButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

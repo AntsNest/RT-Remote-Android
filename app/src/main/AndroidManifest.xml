@@ -134,6 +134,7 @@
         </activity>
         <activity
             android:name=".preferences.AddComputerManually"
+            android:exported="true"
             android:resizeableActivity="true"
             android:windowSoftInputMode="stateVisible"
             android:enableOnBackInvokedCallback="true"
@@ -141,7 +142,16 @@
             android:label="Add Computer Manually">
             <meta-data android:name="WindowManagerPreference:FreeformWindowSize" android:value="system-default" />
             <meta-data android:name="WindowManagerPreference:FreeformWindowOrientation" android:value="landscape" />
-        </activity>
+        
+            <!-- 앤츠톡이 이 앱을 바로 열 수 있게 하는 통로.
+                 rtremote://<메시 주소> 로 열면 주소가 채워진 채 시작한다. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="rtremote" />
+            </intent-filter>
+</activity>
         <activity
             android:name=".Game"
             android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|screenLayout|fontScale|uiMode|orientation|screenSize|smallestScreenSize|layoutDirection"
