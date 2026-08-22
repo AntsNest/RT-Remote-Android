@@ -86,6 +86,9 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
      * 올려야 맞아떨어진다. 실제로 12번 시도가 전부 헛돌았다(2026-08-20).
      */
     private static volatile String autoPairAddress = null;
+    /** 자동 페어링과 카드 탭이 겹쳐 PIN 요청이 두 번 나가는 것을 막는다. */
+    private final java.util.concurrent.atomic.AtomicBoolean pairingInProgress =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
 
     public static void setPresetPin(String pin) {
         presetPin = pin;
@@ -442,6 +445,10 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
             return;
         }
 
+        if (!pairingInProgress.compareAndSet(false, true)) {
+            return;
+        }
+
         Toast.makeText(PcView.this, getResources().getString(R.string.pairing), Toast.LENGTH_SHORT).show();
         new Thread(new Runnable() {
             @Override
@@ -519,6 +526,7 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
                 }
 
                 Dialog.closeDialogs();
+                pairingInProgress.set(false);
 
                 final String toastMessage = message;
                 final boolean toastSuccess = success;
