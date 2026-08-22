@@ -35,6 +35,8 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -44,13 +46,17 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Gravity;
+import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
@@ -812,6 +818,128 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
             }
         }
     }
+
+    /** 구형 회색 시스템 ContextMenu 대신 RT Remote 디자인의 PC 작업 카드를 띄운다. */
+    private void showPcMenu(final ComputerObject computer) {
+        final android.app.Dialog popup = new android.app.Dialog(this);
+        popup.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(20), dp(18), dp(20), dp(12));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Color.rgb(24, 32, 47));
+        bg.setCornerRadius(dp(22));
+        bg.setStroke(dp(1), Color.rgb(52, 68, 91));
+        card.setBackground(bg);
+
+        TextView title = new TextView(this);
+        String state = computer.details.state == ComputerDetails.State.ONLINE
+                ? getString(R.string.pcview_menu_header_online)
+                : computer.details.state == ComputerDetails.State.OFFLINE
+                ? getString(R.string.pcview_menu_header_offline)
+                : getString(R.string.pcview_menu_header_unknown);
+        title.setText(computer.details.name + "  ·  " + state);
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(17);
+        title.setTypeface(title.getTypeface(), android.graphics.Typeface.BOLD);
+        title.setPadding(dp(4), 0, dp(4), dp(12));
+        card.addView(title, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        if (computer.details.state == ComputerDetails.State.OFFLINE ||
+                computer.details.state == ComputerDetails.State.UNKNOWN) {
+            addPcMenuRow(card, popup, computer, WOL_ID, "깨우기", "PC에 Wake-On-LAN 신호를 보냅니다", false);
+            addPcMenuRow(card, popup, computer, GAMESTREAM_EOL_ID, "스트리밍 호스트 안내", "PC 호스트 설정 방법을 확인합니다", false);
+        } else if (computer.details.pairState != PairState.PAIRED) {
+            addPcMenuRow(card, popup, computer, PAIR_ID, "PC 연결하기", "이 기기와 안전하게 페어링합니다", false);
+        } else {
+            if (computer.details.runningGameId != 0) {
+                addPcMenuRow(card, popup, computer, RESUME_ID, "원격 화면으로 돌아가기", "진행 중인 세션을 다시 엽니다", false);
+                addPcMenuRow(card, popup, computer, QUIT_ID, "현재 세션 종료", "PC에서 실행 중인 스트림을 종료합니다", true);
+            }
+            addPcMenuRow(card, popup, computer, FULL_APP_LIST_ID, "모든 앱 보기", "PC에서 실행할 앱을 선택합니다", false);
+        }
+        addPcMenuRow(card, popup, computer, TEST_NETWORK_ID, "네트워크 연결 테스트", "원격 연결 가능 여부를 확인합니다", false);
+        addPcMenuRow(card, popup, computer, VIEW_DETAILS_ID, "PC 세부정보", "주소와 연결 상태를 확인합니다", false);
+        addPcMenuRow(card, popup, computer, DELETE_ID, "PC 삭제", "이 PC를 목록에서 제거합니다", true);
+
+        popup.setContentView(card, new ViewGroup.LayoutParams(dp(340), ViewGroup.LayoutParams.WRAP_CONTENT));
+        popup.setCanceledOnTouchOutside(true);
+        popup.show();
+        android.view.Window window = popup.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.setDimAmount(0.45f);
+            window.addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        }
+    }
+
+    private void addPcMenuRow(LinearLayout parent, final android.app.Dialog popup,
+                              final ComputerObject computer, final int action,
+                              String label, String description, boolean danger) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.VERTICAL);
+        row.setPadding(dp(12), dp(10), dp(12), dp(10));
+        row.setBackground(getSelectableItemBackground());
+        TextView main = new TextView(this);
+        main.setText(label);
+        main.setTextColor(danger ? Color.rgb(255, 125, 125) : Color.WHITE);
+        main.setTextSize(15);
+        main.setTypeface(main.getTypeface(), android.graphics.Typeface.BOLD);
+        row.addView(main);
+        TextView sub = new TextView(this);
+        sub.setText(description);
+        sub.setTextColor(Color.rgb(154, 171, 196));
+        sub.setTextSize(12);
+        sub.setPadding(0, dp(2), 0, 0);
+        row.addView(sub);
+        row.setOnClickListener(v -> {
+            popup.dismiss();
+            runPcMenuAction(action, computer);
+        });
+        parent.addView(row, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+    }
+
+    private android.graphics.drawable.Drawable getSelectableItemBackground() {
+        android.util.TypedValue out = new android.util.TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackground, out, true);
+        return getDrawable(out.resourceId);
+    }
+
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private void runPcMenuAction(int action, final ComputerObject computer) {
+        switch (action) {
+            case PAIR_ID: doPair(computer.details); break;
+            case UNPAIR_ID: doUnpair(computer.details); break;
+            case WOL_ID: doWakeOnLan(computer.details); break;
+            case FULL_APP_LIST_ID: doAppList(computer.details, false, true); break;
+            case RESUME_ID:
+                if (managerBinder != null) ServerHelper.doStart(this,
+                        new NvApp("app", computer.details.runningGameId, false), computer.details, managerBinder);
+                break;
+            case QUIT_ID:
+                UiHelper.displayQuitConfirmationDialog(this, () -> ServerHelper.doQuit(PcView.this,
+                        computer.details, new NvApp("app", 0, false), managerBinder, null), null);
+                break;
+            case TEST_NETWORK_ID: ServerHelper.doNetworkTest(this); break;
+            case GAMESTREAM_EOL_ID: HelpLauncher.launchGameStreamEolFaq(this); break;
+            case VIEW_DETAILS_ID:
+                Dialog.displayDialog(this, getString(R.string.title_details), computer.details.toString(), false);
+                break;
+            case DELETE_ID:
+                if (!ActivityManager.isUserAMonkey()) {
+                    UiHelper.displayDeletePcConfirmationDialog(this, computer.details, () -> {
+                        if (managerBinder != null) removeComputer(computer.details);
+                    }, null);
+                }
+                break;
+        }
+    }
     
     private void updateComputer(ComputerDetails details) {
         ComputerObject existingEntry = null;
@@ -902,8 +1030,7 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
                 ComputerObject computer = (ComputerObject) pcGridAdapter.getItem(pos);
                 if (computer.details.state == ComputerDetails.State.UNKNOWN ||
                     computer.details.state == ComputerDetails.State.OFFLINE) {
-                    // Open the context menu if a PC is offline or refreshing
-                    openContextMenu(arg1);
+                    showPcMenu(computer);
                 } else if (computer.details.pairState != PairState.PAIRED) {
                     // Pair an unpaired machine by default
                     doPair(computer.details);
@@ -912,8 +1039,11 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
                 }
             }
         });
+        listView.setOnItemLongClickListener((parent, view, position, id) -> {
+            showPcMenu((ComputerObject) pcGridAdapter.getItem(position));
+            return true;
+        });
         UiHelper.applyStatusBarPadding(listView);
-        registerForContextMenu(listView);
     }
 
     public static class ComputerObject {
