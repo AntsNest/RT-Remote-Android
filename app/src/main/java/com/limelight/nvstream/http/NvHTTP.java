@@ -428,7 +428,16 @@ public class NvHTTP {
     // queries do not.
     private ResponseBody openHttpConnection(OkHttpClient client, HttpUrl baseUrl, String path, String query) throws IOException {
         HttpUrl completeUrl = getCompleteUrl(baseUrl, path, query);
-        Request request = new Request.Builder().url(completeUrl).get().build();
+        // RT Tunnel은 HTTP 요청마다 독립 QUIC 스트림을 연다. OkHttp가
+        // keep-alive를 광고하면 Sunshine은 TCP를 계속 살려 두려 하고,
+        // QUIC 쪽은 요청 단위 스트림을 닫으면서 Content-Length 도중 EOF가
+        // 발생할 수 있다. 원래도 connection pool이 0이므로 명시적으로
+        // close를 합의해 응답 끝과 터널 끝을 일치시킨다.
+        Request request = new Request.Builder()
+                .url(completeUrl)
+                .header("Connection", "close")
+                .get()
+                .build();
         Response response = performAndroidTlsHack(client).newCall(request).execute();
 
         ResponseBody body = response.body();
