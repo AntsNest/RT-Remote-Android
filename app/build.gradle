@@ -11,8 +11,8 @@ android {
         minSdk 21
         targetSdk 34
 
-        versionName "12.7.1"
-        versionCode = 321
+        versionName "12.7.2"
+        versionCode = 322
 
         // Generate native debug symbols to allow Google Play to symbolicate our native crashes
         ndk.debugSymbolLevel = 'FULL'
@@ -142,3 +142,11 @@ dependencies {
     implementation 'org.jmdns:jmdns:3.5.9'
     implementation 'com.github.cgutman:ShieldControllerExtensions:1.0.1'
 }
+
+// Keep the standalone AntsRemote tunnel engine in sync with its Rust release
+// build. This prevents an APK rebuild from silently packaging an older .so.
+tasks.register('syncRtTunnelNative', Copy) {
+    from '../../AntsRemote/target/aarch64-linux-android/release/librttunnel.so'
+    into 'src/main/jniLibs/arm64-v8a'
+}
+tasks.named('preBuild').configure { dependsOn 'syncRtTunnelNative' }
