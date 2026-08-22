@@ -1052,6 +1052,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // Destroy the capture provider
         inputCaptureProvider.destroy();
+
+        // NAT 통과 터널로 붙어 있었다면 여기서 함께 접는다. 스트리밍이 끝난
+        // 뒤에도 터널을 남겨두면 QUIC keepalive 가 배터리를 계속 먹고, PC 쪽
+        // 세션 자리도 붙들고 있어 다음 접속이 "no peer connected" 로 헛돈다.
+        com.limelight.antsnest.RtTunnelManager.close();
     }
 
     @Override

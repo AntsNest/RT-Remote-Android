@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.limelight.antsnest.RtTunnelManager;
 import com.limelight.binding.PlatformBinding;
 import com.limelight.computers.ComputerManagerService;
 import com.limelight.R;
@@ -101,6 +102,26 @@ public class AddComputerManually extends Activity {
         }
     }
 
+    /**
+     * "디바이스ID/비밀번호" 입력을 알아본다. 아니면 null.
+     *
+     * 디바이스 ID 는 순수 숫자(공백 허용: "167 874 886")다. IP:포트나 호스트
+     * 이름과 절대 겹치지 않도록, 슬래시가 정확히 하나 있고 앞부분이 숫자로만
+     * 이루어졌을 때만 터널 경로로 본다.
+     */
+    private String parseTunnelInput(String rawUserInput) {
+        int slash = rawUserInput.indexOf('/');
+        if (slash <= 0 || slash != rawUserInput.lastIndexOf('/')) {
+            return null;
+        }
+        String id = rawUserInput.substring(0, slash).replace(" ", "");
+        String password = rawUserInput.substring(slash + 1);
+        if (id.isEmpty() || password.isEmpty() || !id.matches("[0-9]{6,12}")) {
+            return null;
+        }
+        return id + "/" + password;
+    }
+
     private URI parseRawUserInputToUri(String rawUserInput) {
         try {
             // Try adding a scheme and parsing the remaining input.
@@ -131,6 +152,36 @@ public class AddComputerManually extends Activity {
 
         SpinnerDialog dialog = SpinnerDialog.displayDialog(this, getResources().getString(R.string.title_add_pc),
             getResources().getString(R.string.msg_add_pc), false);
+
+        // ── 디바이스 ID 경로 (NAT 통과 터널) ──────────────────────────
+        //
+        // 입력이 "숫자ID/비밀번호" 꼴이면 IP 가 아니라 AntsRemote 디바이스
+        // ID 다. librttunnel 로 PC 와 P2P/TURN 세션을 맺고 Sunshine 포트를
+        // 127.0.0.1 에 그대로 얹은 뒤, 아래의 기존 추가 흐름에 127.0.0.1 을
+        // 넣는다 — 이 지점 이후는 LAN 추가와 완전히 같은 코드가 돈다.
+        //
+        //   167874886/mypassword      (수동 입력)
+        //   rtremote://tunnel?device=167874886&pw=...&pin=4821  (딥링크)
+        String tunnelTarget = parseTunnelInput(rawUserInput);
+        if (tunnelTarget != null) {
+            String[] parts = tunnelTarget.split("/", 2);
+            boolean tunnelUp = RtTunnelManager.connect(parts[0], parts[1]);
+            if (!tunnelUp) {
+                dialog.dismiss();
+                final String reason = RtTunnelManager.lastError();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Dialog.displayDialog(AddComputerManually.this,
+                                getResources().getString(R.string.conn_error_title),
+                                "원격 터널 연결 실패: " + reason, false);
+                    }
+                });
+                return;
+            }
+            // 터널이 열렸다 — 이제 PC 는 127.0.0.1 의 Sunshine 이다.
+            rawUserInput = "127.0.0.1";
+        }
 
         try {
             ComputerDetails details = new ComputerDetails();
@@ -323,6 +374,36 @@ public class AddComputerManually extends Activity {
         // 고장날 곳을 늘리지 않는 유일한 방법이다.
         android.net.Uri link = getIntent() != null ? getIntent().getData() : null;
         if (link != null && "rtremote".equals(link.getScheme())) {
+            fromDeepLink = true;
+
+            // ── rtremote://tunnel?device=167874886&pw=...&pin=4821 ──
+            //
+            // 외부망용 새 형태: IP 대신 AntsRemote 디바이스 ID 를 받아
+            // NAT 통과 터널을 거쳐 접속한다. 기존 rtremote://<ip> 형태는
+            // 그대로 아래에서 처리된다 (LAN 직결).
+            if ("tunnel".equals(link.getHost())) {
+                String device = null, pw = null, linkedPin = null;
+                try {
+                    device = link.getQueryParameter("device");
+                    pw = link.getQueryParameter("pw");
+                    linkedPin = link.getQueryParameter("pin");
+                } catch (Exception ignored) {}
+
+                if (linkedPin != null && linkedPin.matches("[0-9]{4}")) {
+                    com.limelight.PcView.setPresetPin(linkedPin);
+                    // 터널 성립 후의 PC 주소는 언제나 루프백이다.
+                    com.limelight.PcView.setAutoPairAddress("127.0.0.1");
+                }
+                if (device != null && pw != null && !device.isEmpty() && !pw.isEmpty()) {
+                    hostText.setText(device.replace(" ", "") + "/" + pw);
+                    hostText.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleDoneEvent();
+                        }
+                    });
+                }
+            } else {
             // 앤츠톡이 PIN 도 같이 정해서 넘긴다.
             //
             //   rtremote://100.77.1.5?pin=4821
@@ -365,6 +446,7 @@ public class AddComputerManually extends Activity {
                     }
                 });
             }
+            } // end: legacy rtremote://<ip> path
         }
 
         findViewById(R.id.addPcButton).setOnClickListener(new View.OnClickListener() {
