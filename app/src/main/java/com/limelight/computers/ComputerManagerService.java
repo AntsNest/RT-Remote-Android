@@ -331,6 +331,16 @@ public class ComputerManagerService extends Service {
     }
 
     private void populateExternalAddress(ComputerDetails details) {
+        // RT Remote는 앤츠톡 메시 VPN의 100.77.x.x 주소로 PC에 붙는다.
+        //
+        // Moonlight 원본은 VPN이 보이면 STUN을 물리 NIC로 보내려고 프로세스 전체를
+        // 잠깐 Wi-Fi에 bind한다. 같은 순간 수동 PC 추가의 HTTP 요청이 시작되면 그
+        // 요청까지 VPN을 우회해 메시 주소에 절대 닿지 않는다(tunIn=0으로 실측).
+        // 외부 주소 자동 탐지는 우리 콘솔이 이미 제공하므로 여기서는 하지 않는다.
+        if (getPackageName().startsWith("kr.co.antsnest.rtremote")) {
+            return;
+        }
+
         boolean boundToNetwork = false;
         boolean activeNetworkIsVpn = NetHelper.isActiveNetworkVpn(this);
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
