@@ -32,9 +32,10 @@ public final class RtTunnelManager {
      * @return 성공 여부. 실패 사유는 {@link #lastError()}.
      */
     public static synchronized boolean connect(String deviceId, String password) {
-        if (active != null && active.isConnected() && deviceId.equals(activeDeviceId)) {
-            return true; // 같은 PC 로의 재연결 요청은 기존 세션을 재사용한다.
-        }
+        // 원격 QUIC 세션이 끊겨도 JNI 핸들이 남아 있으면 isConnected()가 잠시
+        // true일 수 있다. 그 상태를 재사용하면 네트워크 요청 없이 127.0.0.1만
+        // 조회하다가 일반 "방화벽/포트" 오류로 끝난다. 사용자가 다시 추가를
+        // 눌렀다는 것은 새 세션 의도이므로 항상 기존 터널을 닫고 재연결한다.
         closeLocked();
 
         RtTunnel tunnel = new RtTunnel();
