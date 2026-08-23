@@ -2,6 +2,8 @@ package com.limelight;
 
 
 import com.limelight.binding.PlatformBinding;
+import com.limelight.antsnest.RtSessionRecoveryPolicy;
+import com.limelight.antsnest.RtDiagnostics;
 import com.limelight.binding.audio.AndroidAudioRenderer;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.KeyboardTranslator;
@@ -108,6 +110,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private static final int STYLUS_UP_DEAD_ZONE_RADIUS = 50;
 
     private static final int THREE_FINGER_TAP_THRESHOLD = 300;
+    private static final String EXTRA_RT_SESSION_RETRY =
+            "com.limelight.antsnest.extra.RT_SESSION_RETRY";
 
 
     private ControllerHandler controllerHandler;
@@ -120,8 +124,26 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private NvConnection conn;
     private SpinnerDialog spinner;
     private boolean displayedFailureDialog = false;
-    private boolean connecting = false;
-    private boolean connected = false;
+    private volatile boolean connecting = false;
+    private volatile boolean connected = false;
+    private volatile boolean rtSessionRetryPending = false;
+    private volatile boolean userInitiatedStop = false;
+    private volatile boolean rtSessionRelaunchArmed = false;
+    private Intent rtSessionRetryIntent;
+    private final Handler rtRecoveryUiHandler = new Handler();
+    private long rtRecoveryStartedAt;
+    private long rtRecoveryWaitUntil;
+    private String rtRecoveryStage = "대기";
+    private String rtRecoveryFunction = "-";
+    private int rtRecoveryAttempt;
+    private final Runnable rtRecoveryTicker = new Runnable() {
+        @Override
+        public void run() {
+            if (!rtSessionRetryPending || isFinishing() || isDestroyed()) return;
+            renderRtRecoveryProgress();
+            rtRecoveryUiHandler.postDelayed(this, 1000);
+        }
+    };
     private boolean autoEnterPip = false;
     private boolean surfaceCreated = false;
     private boolean attemptedConnection = false;
@@ -1028,6 +1050,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     @Override
     protected void onDestroy() {
+        rtRecoveryUiHandler.removeCallbacks(rtRecoveryTicker);
         super.onDestroy();
 
         if (controllerHandler != null) {
@@ -1056,7 +1079,17 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         // NAT 통과 터널로 붙어 있었다면 여기서 함께 접는다. 스트리밍이 끝난
         // 뒤에도 터널을 남겨두면 QUIC keepalive 가 배터리를 계속 먹고, PC 쪽
         // 세션 자리도 붙들고 있어 다음 접속이 "no peer connected" 로 헛돈다.
-        com.limelight.antsnest.RtTunnelManager.close();
+        if (rtSessionRetryPending && rtSessionRelaunchArmed &&
+                !userInitiatedStop && rtSessionRetryIntent != null) {
+            final Context appContext = getApplicationContext();
+            final Intent retryIntent = rtSessionRetryIntent;
+            // Post after onDestroy returns so singleTask no longer resolves to
+            // this old Game instance.
+            new Handler(getMainLooper()).post(() -> appContext.startActivity(retryIntent));
+        }
+        else {
+            com.limelight.antsnest.RtTunnelManager.close();
+        }
     }
 
     @Override
@@ -1077,6 +1110,17 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     @Override
     protected void onStop() {
         super.onStop();
+
+        // Auto-recovery intentionally replaces this Activity. Any other stop
+        // (Back/Home/task removal) belongs to the user and must cancel retries.
+        if (!rtSessionRetryPending && !rtSessionRelaunchArmed) {
+            userInitiatedStop = true;
+            RtDiagnostics.record("activity_stopped_by_user", "recoveryPending=false");
+        }
+        else {
+            RtDiagnostics.record("activity_stopped_during_recovery", "pending=" +
+                    rtSessionRetryPending + " relaunchArmed=" + rtSessionRelaunchArmed);
+        }
 
         SpinnerDialog.closeDialogs(this);
         Dialog.closeDialogs();
@@ -2263,8 +2307,195 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
     }
 
+    /**
+     * Recover an RT stream across Sunshine's Windows session-process restart.
+     *
+     * The first retry is allowed only after a stream was actually connected.
+     * Later retry activities may also recover from a startup-stage failure,
+     * because Sunshine can still be initializing its encoder and HTTP/RTSP
+     * endpoints. User-initiated Activity stops never enter this path.
+     */
+    private synchronized boolean scheduleRtSessionReconnect(final String reason) {
+        final int retryCount = getIntent().getIntExtra(EXTRA_RT_SESSION_RETRY, 0);
+        RtDiagnostics.record("recovery_evaluate", "reason=" + reason +
+                " retry=" + retryCount + " connected=" + connected +
+                " connecting=" + connecting + " pending=" + rtSessionRetryPending +
+                " userStop=" + userInitiatedStop + " tunnelState=" +
+                (com.limelight.antsnest.RtTunnelManager.isActive() ? "connected" : "not-connected") +
+                " canReconnect=" + com.limelight.antsnest.RtTunnelManager.canReconnect());
+        if (!RtSessionRecoveryPolicy.shouldRetry(
+                userInitiatedStop,
+                rtSessionRetryPending,
+                retryCount,
+                connected,
+                com.limelight.antsnest.RtTunnelManager.canReconnect())) {
+            return false;
+        }
+        RtDiagnostics.upload(this, "recovery_scheduled");
+        rtSessionRetryPending = true;
+        rtRecoveryStartedAt = System.currentTimeMillis();
+        rtRecoveryWaitUntil = rtRecoveryStartedAt + RtSessionRecoveryPolicy.DELAYS_MS[retryCount];
+        updateRtRecoveryProgress("복구 예약", "Game.scheduleRtSessionReconnect:timer", 0);
+
+        runOnUiThread(() -> {
+            if (userInitiatedStop || isFinishing() || isDestroyed()) {
+                rtSessionRetryPending = false;
+                return;
+            }
+            displayedFailureDialog = true;
+            final long delayMs = RtSessionRecoveryPolicy.DELAYS_MS[retryCount];
+            LimeLog.warning("RT session recovery scheduled after " + reason + " (" +
+                    (retryCount + 1) + "/" + RtSessionRecoveryPolicy.DELAYS_MS.length +
+                    ", delay=" + delayMs + "ms)");
+            Toast.makeText(Game.this,
+                    "Windows 로그인 전환 중 — 잠시 후 자동 재접속합니다.",
+                    Toast.LENGTH_SHORT).show();
+            stopConnection();
+
+            if (spinner != null) spinner.dismiss();
+            spinner = SpinnerDialog.displayDialog(Game.this, "Windows 화면 전환 중",
+                    "[화면 전환] Windows 화면을 준비하고 있습니다", false);
+            rtRecoveryUiHandler.removeCallbacks(rtRecoveryTicker);
+            rtRecoveryUiHandler.post(rtRecoveryTicker);
+
+            final Intent retryIntent = new Intent(getIntent());
+            retryIntent.putExtra(EXTRA_RT_SESSION_RETRY, retryCount + 1);
+            retryIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
+            rtSessionRetryIntent = retryIntent;
+            new Handler(getMainLooper()).postDelayed(() -> {
+                updateRtRecoveryProgress("대기 완료", "Game.retryTimer:onElapsed", 0);
+                if (userInitiatedStop) {
+                    RtDiagnostics.record("recovery_cancelled", "checkpoint=before_tunnel_reconnect");
+                    RtDiagnostics.upload(Game.this, "recovery_cancelled");
+                    rtSessionRetryPending = false;
+                    com.limelight.antsnest.RtTunnelManager.close();
+                    finish();
+                    return;
+                }
+                // A Windows login can restart Sunshine and close the host side
+                // of the QUIC tunnel. Reusing its loopback bridges produces
+                // "closed by peer", so establish a completely new RT session
+                // off the UI thread before launching Moonlight again.
+                new Thread(() -> {
+                    boolean tunnelReady = com.limelight.antsnest.RtTunnelManager.isActive();
+                    if (tunnelReady) {
+                        RtDiagnostics.record("tunnel_fast_path", "existingTunnel=connected");
+                        runOnUiThread(() -> updateRtRecoveryProgress("Windows 화면 준비",
+                                "RtTunnelManager.fastPath", 0));
+                    }
+                    for (int attempt = 1; !tunnelReady && attempt <= 3 && !userInitiatedStop; attempt++) {
+                        final int visibleAttempt = attempt;
+                        runOnUiThread(() -> updateRtRecoveryProgress("새 터널 연결",
+                                "RtTunnelManager.reconnect", visibleAttempt));
+                        RtDiagnostics.record("tunnel_reconnect_begin", "attempt=" + attempt);
+                        if (com.limelight.antsnest.RtTunnelManager.reconnect()) {
+                            RtDiagnostics.record("tunnel_reconnect_success", "attempt=" + attempt);
+                            RtDiagnostics.upload(Game.this, "tunnel_reconnect_success");
+                            tunnelReady = true;
+                            break;
+                        }
+                        LimeLog.warning("RT tunnel reconnect attempt " + attempt +
+                                " failed: " + com.limelight.antsnest.RtTunnelManager.lastError());
+                        RtDiagnostics.record("tunnel_reconnect_failed", "attempt=" + attempt +
+                                " error=" + com.limelight.antsnest.RtTunnelManager.lastError());
+                        if (attempt < 3) {
+                            try {
+                                Thread.sleep(2000L * attempt);
+                            }
+                            catch (InterruptedException e) {
+                                Thread.currentThread().interrupt();
+                                break;
+                            }
+                        }
+                    }
+                    final boolean reconnectSucceeded = tunnelReady;
+                    runOnUiThread(() -> {
+                        if (userInitiatedStop) {
+                            rtSessionRetryPending = false;
+                            com.limelight.antsnest.RtTunnelManager.close();
+                            finish();
+                            return;
+                        }
+                        if (!reconnectSucceeded) {
+                            updateRtRecoveryProgress("복구 실패", "Game.reconnectResult", 3);
+                            RtDiagnostics.upload(Game.this, "tunnel_reconnect_exhausted");
+                            rtSessionRetryPending = false;
+                            Toast.makeText(Game.this,
+                                    "RT 터널 재연결에 실패했습니다: " +
+                                            com.limelight.antsnest.RtTunnelManager.lastError(),
+                                    Toast.LENGTH_LONG).show();
+                            finish();
+                            return;
+                        }
+                        updateRtRecoveryProgress("터널 연결 완료", "Game.relaunchActivity", rtRecoveryAttempt);
+                        // Game is singleTask, so destroy this instance before
+                        // onDestroy launches the replacement Activity.
+                        rtSessionRelaunchArmed = true;
+                        finish();
+                        overridePendingTransition(0, 0);
+                    });
+                }, "rt-tunnel-reconnect").start();
+            }, delayMs);
+        });
+        return true;
+    }
+
+    private void updateRtRecoveryProgress(String stage, String function, int attempt) {
+        rtRecoveryStage = stage;
+        rtRecoveryFunction = function;
+        rtRecoveryAttempt = attempt;
+        renderRtRecoveryProgress();
+        RtDiagnostics.record("recovery_ui", "stage=" + stage + " function=" + function +
+                " attempt=" + attempt);
+    }
+
+    private void renderRtRecoveryProgress() {
+        if (spinner == null || rtRecoveryStartedAt == 0) return;
+        long elapsedSeconds = Math.max(0,
+                (System.currentTimeMillis() - rtRecoveryStartedAt) / 1000);
+        String estimate;
+        if ("복구 예약".equals(rtRecoveryStage)) {
+            long remaining = Math.max(0, (rtRecoveryWaitUntil - System.currentTimeMillis() + 999) / 1000);
+            estimate = "재연결 시작까지 약 " + remaining + "초";
+        }
+        else if ("새 터널 연결".equals(rtRecoveryStage)) {
+            estimate = "이 단계 보통 3~15초 (최대 45초/회)";
+        }
+        else if ("터널 연결 완료".equals(rtRecoveryStage)) {
+            estimate = "화면 재실행까지 약 1~5초";
+        }
+        else if ("Windows 화면 준비".equals(rtRecoveryStage)) {
+            estimate = "화면 시작까지 약 1~5초";
+        }
+        else {
+            estimate = "전체 보통 6~10초";
+        }
+        String customerStage;
+        if ("복구 예약".equals(rtRecoveryStage) || "대기 완료".equals(rtRecoveryStage)) {
+            customerStage = "Windows 로그인 화면 준비";
+        }
+        else if ("새 터널 연결".equals(rtRecoveryStage)) {
+            customerStage = "보안 연결 확인";
+        }
+        else if ("복구 실패".equals(rtRecoveryStage)) {
+            customerStage = "연결을 다시 확인하고 있습니다";
+        }
+        else {
+            customerStage = "원격 화면 시작";
+        }
+        spinner.setMessage("[화면 전환] 경과 " + elapsedSeconds + "초\n" +
+                "현재: " + customerStage + "\n" +
+                "예상: " + estimate);
+    }
+
     @Override
     public void stageFailed(final String stage, final int portFlags, final int errorCode) {
+        RtDiagnostics.record("stream_stage_failed", "stage=" + stage +
+                " portFlags=" + portFlags + " errorCode=" + errorCode);
+        RtDiagnostics.upload(this, "stream_stage_failed");
+        if (scheduleRtSessionReconnect("stage failure " + stage + " (error " + errorCode + ")")) {
+            return;
+        }
         // Perform a connection test if the failure could be due to a blocked port
         // This does network I/O, so don't do it on the main thread.
         final int portTestResult = MoonBridge.testClientConnectivity(ServerHelper.CONNECTION_TEST_SERVER, 443, portFlags);
@@ -2305,6 +2536,12 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     @Override
     public void connectionTerminated(final int errorCode) {
+        RtDiagnostics.record("stream_terminated", "errorCode=" + errorCode);
+        RtDiagnostics.upload(this, "stream_terminated");
+        if (scheduleRtSessionReconnect("stream termination (error " + errorCode + ")")) {
+            return;
+        }
+
         // Perform a connection test if the failure could be due to a blocked port
         // This does network I/O, so don't do it on the main thread.
         final int portFlags = MoonBridge.getPortFlagsFromTerminationErrorCode(errorCode);
@@ -2418,6 +2655,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     @Override
     public void connectionStarted() {
+        RtDiagnostics.record("stream_started", "retry=" +
+                getIntent().getIntExtra(EXTRA_RT_SESSION_RETRY, 0));
+        if (getIntent().getIntExtra(EXTRA_RT_SESSION_RETRY, 0) > 0) {
+            RtDiagnostics.upload(this, "recovered_stream_started");
+        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

@@ -2,6 +2,7 @@ package com.limelight;
 
 import java.io.IOException;
 import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
 import java.util.logging.Logger;
 
 public class LimeLog {
@@ -20,6 +21,8 @@ public class LimeLog {
     }
     
     public static void setFileHandler(String fileName) throws IOException {
-        LOGGER.addHandler(new FileHandler(fileName));
+        FileHandler handler = new FileHandler(fileName, 512 * 1024, 4, true);
+        handler.setFormatter(new SimpleFormatter());
+        LOGGER.addHandler(handler);
     }
 }

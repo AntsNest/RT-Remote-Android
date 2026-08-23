@@ -8,6 +8,7 @@ import android.util.Log;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
@@ -40,6 +41,14 @@ public class RtRemoteApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        try {
+            LimeLog.setFileHandler(new File(getFilesDir(), "rtremote-%g.log").getAbsolutePath());
+            LimeLog.info("RTDIAG app_process_start sdk=" + Build.VERSION.SDK_INT);
+        }
+        catch (IOException error) {
+            Log.e(TAG, "RT diagnostic file logger initialization failed", error);
+        }
 
         try {
             version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;

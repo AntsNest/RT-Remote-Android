@@ -22,6 +22,9 @@ public final class RtTunnelManager {
 
     private static RtTunnel active;
     private static String activeDeviceId;
+    // Kept in process memory only so an interrupted Windows login can create
+    // a fresh QUIC session without asking the user for the password again.
+    private static String activePassword;
 
     private RtTunnelManager() {}
 
@@ -32,15 +35,33 @@ public final class RtTunnelManager {
      * @return 성공 여부. 실패 사유는 {@link #lastError()}.
      */
     public static synchronized boolean connect(String deviceId, String password) {
+        activeDeviceId = deviceId;
+        activePassword = password;
+        return connectLocked(deviceId, password);
+    }
+
+    /** Replace a stale/peer-closed QUIC session using the current RT target. */
+    public static synchronized boolean reconnect() {
+        if (activeDeviceId == null || activePassword == null) {
+            lastError = "RT reconnect credentials unavailable";
+            return false;
+        }
+        return connectLocked(activeDeviceId, activePassword);
+    }
+
+    private static boolean connectLocked(String deviceId, String password) {
+        long startedAt = System.currentTimeMillis();
+        LimeLog.info("RTDIAG tunnel_connect_begin replacing=" + (active != null));
         // 원격 QUIC 세션이 끊겨도 JNI 핸들이 남아 있으면 isConnected()가 잠시
         // true일 수 있다. 그 상태를 재사용하면 네트워크 요청 없이 127.0.0.1만
         // 조회하다가 일반 "방화벽/포트" 오류로 끝난다. 사용자가 다시 추가를
         // 눌렀다는 것은 새 세션 의도이므로 항상 기존 터널을 닫고 재연결한다.
-        closeLocked();
+        closeTunnelLocked();
 
         RtTunnel tunnel = new RtTunnel();
         if (!tunnel.connect(deviceId, password)) {
-            LimeLog.warning("RtTunnel connect failed: " + tunnel.lastError());
+            LimeLog.warning("RTDIAG tunnel_connect_failed elapsedMs=" +
+                    (System.currentTimeMillis() - startedAt) + " error=" + tunnel.lastError());
             lastError = tunnel.lastError();
             tunnel.close();
             return false;
@@ -50,6 +71,7 @@ public final class RtTunnelManager {
         // 절반만 되는 세션을 남기느니 여기서 실패로 끝내는 편이 낫다.
         for (int port : SUNSHINE_TCP) {
             int local = tunnel.openTcp(port);
+            LimeLog.info("RTDIAG tcp_bridge_open remote=" + port + " local=" + local);
             if (local == 0) {
                 lastError = "TCP bridge failed for port " + port;
                 LimeLog.warning("RtTunnel: " + lastError);
@@ -67,6 +89,7 @@ public final class RtTunnelManager {
         }
         for (int port : SUNSHINE_UDP) {
             int local = tunnel.openUdp(port);
+            LimeLog.info("RTDIAG udp_bridge_open remote=" + port + " local=" + local);
             if (local == 0 || local != port) {
                 lastError = "UDP bridge failed for port " + port;
                 LimeLog.warning("RtTunnel: " + lastError);
@@ -78,7 +101,8 @@ public final class RtTunnelManager {
         active = tunnel;
         activeDeviceId = deviceId;
         lastError = null;
-        LimeLog.info("RtTunnel up: device " + deviceId + " → 127.0.0.1 (Sunshine ports bridged)");
+        LimeLog.info("RTDIAG tunnel_connect_success elapsedMs=" +
+                (System.currentTimeMillis() - startedAt) + " sunshineBridges=ready");
         return true;
     }
 
@@ -97,15 +121,28 @@ public final class RtTunnelManager {
         return active != null && active.isConnected();
     }
 
+    public static synchronized boolean canReconnect() {
+        return activeDeviceId != null && activePassword != null;
+    }
+
     public static synchronized void close() {
         closeLocked();
     }
 
     private static void closeLocked() {
+        closeTunnelLocked();
+        activeDeviceId = null;
+        activePassword = null;
+    }
+
+    private static void closeTunnelLocked() {
         if (active != null) {
+            LimeLog.info("RTDIAG tunnel_close_begin state=" + active.state());
+            long startedAt = System.currentTimeMillis();
             active.close();
             active = null;
-            activeDeviceId = null;
+            LimeLog.info("RTDIAG tunnel_close_complete elapsedMs=" +
+                    (System.currentTimeMillis() - startedAt));
         }
     }
 }

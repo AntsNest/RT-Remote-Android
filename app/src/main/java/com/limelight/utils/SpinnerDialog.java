@@ -108,7 +108,7 @@ public class SpinnerDialog implements Runnable,OnCancelListener {
             card.addView(indicator, new LinearLayout.LayoutParams(dp(46), dp(46)));
 
             TextView titleView = new TextView(activity);
-            titleView.setText("PC에 연결하는 중");
+            titleView.setText(title);
             titleView.setTextColor(Color.WHITE);
             titleView.setTextSize(19);
             titleView.setGravity(Gravity.CENTER);
@@ -169,6 +169,7 @@ public class SpinnerDialog implements Runnable,OnCancelListener {
 
     /** 네트워크 내부 단계명은 사용자에게 이해되는 진행 문구로 바꾼다. */
     private static String friendlyStage(String value) {
+        if (value != null && value.startsWith("[화면 전환]")) return value;
         if (value == null) return "연결을 준비하고 있습니다";
         String lower = value.toLowerCase(java.util.Locale.ROOT);
         if (lower.contains("handshake") || lower.contains("rtsp")) return "보안 연결을 확인하고 있습니다";
