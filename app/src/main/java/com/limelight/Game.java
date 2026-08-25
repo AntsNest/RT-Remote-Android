@@ -156,6 +156,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private InputCaptureProvider inputCaptureProvider;
     private int modifierFlags = 0;
     private boolean grabbedInput = true;
+    private boolean remoteAltTabActive = false;
     private boolean cursorVisible = false;
     private boolean waitingForAllModifiersUp = false;
     private int specialKeyCode = KeyEvent.KEYCODE_UNKNOWN;
@@ -761,6 +762,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         // We can't guarantee the state of modifiers keys which may have
         // lifted while focus was not on us. Clear the modifier state.
         this.modifierFlags = 0;
+        this.remoteAltTabActive = false;
 
         // With Android native pointer capture, capture is lost when focus is lost,
         // so it must be requested again when focus is regained.
@@ -1350,6 +1352,33 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         return (byte) modifierFlags;
     }
 
+    private boolean isRemoteAltTab(KeyEvent event) {
+        return grabbedInput && event.getKeyCode() == KeyEvent.KEYCODE_TAB &&
+                (remoteAltTabActive || event.isAltPressed() ||
+                 (modifierFlags & KeyboardPacket.MODIFIER_ALT) != 0);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        // Some Bluetooth keyboards mark Tab as FLAG_VIRTUAL_HARD_KEY. Android
+        // then treats Alt+Tab as local app navigation before the normal
+        // Activity key callbacks can consume it. Intercept the chord at the
+        // dispatch boundary and keep both press and release in the remote
+        // keyboard path.
+        if (isRemoteAltTab(event)) {
+            if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                remoteAltTabActive = true;
+                return handleKeyDown(event);
+            }
+            else if (event.getAction() == KeyEvent.ACTION_UP) {
+                boolean handled = handleKeyUp(event);
+                remoteAltTabActive = false;
+                return handled;
+            }
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return handleKeyDown(event) || super.onKeyDown(keyCode, event);
@@ -1358,7 +1387,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     @Override
     public boolean handleKeyDown(KeyEvent event) {
         // Pass-through virtual navigation keys
-        if ((event.getFlags() & KeyEvent.FLAG_VIRTUAL_HARD_KEY) != 0) {
+        if ((event.getFlags() & KeyEvent.FLAG_VIRTUAL_HARD_KEY) != 0 && !isRemoteAltTab(event)) {
             return false;
         }
 
@@ -1440,7 +1469,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     @Override
     public boolean handleKeyUp(KeyEvent event) {
         // Pass-through virtual navigation keys
-        if ((event.getFlags() & KeyEvent.FLAG_VIRTUAL_HARD_KEY) != 0) {
+        if ((event.getFlags() & KeyEvent.FLAG_VIRTUAL_HARD_KEY) != 0 && !isRemoteAltTab(event)) {
             return false;
         }
 
