@@ -88,72 +88,27 @@ public class RtRemoteApplication extends Application {
                 + "at=" + System.currentTimeMillis() + "\n"
                 + sw;
 
-        java.io.FileOutputStream out = new java.io.FileOutputStream(new File(ctx.getFilesDir(), FILE));
-        try {
-            out.write(text.getBytes(StandardCharsets.UTF_8));
-        } finally {
-            out.close();
-        }
-        Log.e(TAG, "크래시 기록: " + error);
+        com.limelight.antsnest.DiagnosticDelivery.save(ctx, "rtremote", version, text, System.currentTimeMillis());
+        Log.e(TAG, "Crash recorded: " + error.getClass().getSimpleName());
     }
 
-    /**
-     * 쌓인 기록을 보낸다 — 보냈든 못 보냈든 한 번 시도하고 지운다.
-     *
-     * 못 보냈다고 붙들고 있으면 다음 크래시가 그 자리를 못 쓴다. 가장 최근에
-     * 죽은 이유를 잃는 편보다 한 번 놓치는 편이 낫다.
-     */
+    /** Migrate legacy evidence before deleting it, then resume network-constrained uploads. */
     private void send(Context ctx) {
-        final File file = new File(ctx.getFilesDir(), FILE);
-        if (!file.exists()) return;
-
-        String read = null;
-        try {
-            byte[] buf = new byte[(int) Math.min(file.length(), 64 * 1024)];
-            java.io.FileInputStream in = new java.io.FileInputStream(file);
+        new Thread(() -> {
             try {
-                int n = in.read(buf);
-                if (n > 0) read = new String(buf, 0, n, StandardCharsets.UTF_8);
-            } finally {
-                in.close();
-            }
-        } catch (Exception ignored) { /* 못 읽으면 보낼 것도 없다 */ }
-
-        //noinspection ResultOfMethodCallIgnored
-        file.delete();
-        if (read == null || read.trim().isEmpty()) return;
-
-        final String body = read;
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpURLConnection conn = null;
-                try {
-                    JSONObject json = new JSONObject();
-                    json.put("app", "rtremote");
-                    json.put("version", version);
-                    json.put("device", group(body, "^device=(.*)$"));
-                    String at = group(body, "^at=(\\d+)$");
-                    json.put("happenedAt", at.isEmpty() ? JSONObject.NULL : Long.parseLong(at));
-                    json.put("stack", body);
-
-                    conn = (HttpURLConnection) new URL(URL_ENDPOINT).openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Content-Type", "application/json");
-                    conn.setConnectTimeout(8000);
-                    conn.setReadTimeout(8000);
-                    conn.setDoOutput(true);
-                    conn.getOutputStream().write(json.toString().getBytes(StandardCharsets.UTF_8));
-                    Log.i(TAG, "지난 크래시 전송: HTTP " + conn.getResponseCode());
-                } catch (Exception e) {
-                    Log.w(TAG, "지난 크래시 전송 실패: " + e.getMessage());
-                } finally {
-                    if (conn != null) conn.disconnect();
+                File file = new File(ctx.getFilesDir(), FILE);
+                if (file.exists()) {
+                    String body = com.limelight.antsnest.DiagnosticOutbox.read(file);
+                    if (!body.trim().isEmpty()) {
+                        String at = group(body, "^at=(\\d+)$");
+                        com.limelight.antsnest.DiagnosticDelivery.save(ctx, "rtremote", version, body,
+                                at.isEmpty() ? null : Long.parseLong(at));
+                    }
+                    file.delete();
                 }
-            }
-        }, "crash-report");
-        t.setDaemon(true);
-        t.start();
+            } catch (Exception error) { Log.w(TAG, "Legacy crash retained for next startup"); }
+            com.limelight.antsnest.DiagnosticDelivery.resume(ctx);
+        }, "rt-diagnostic-resume").start();
     }
 
     private static String group(String text, String regex) {

@@ -24,7 +24,7 @@ public final class RtDiagnostics {
     private RtDiagnostics() {}
 
     public static synchronized void record(String event, String detail) {
-        String safe = detail == null ? "" : detail.replace('\n', ' ').replace('\r', ' ');
+        String safe = detail == null ? "" : DiagnosticOutbox.redact(detail).replace('\n', ' ').replace('\r', ' ');
         if (safe.length() > 500) safe = safe.substring(0, 500);
         String line = String.format(Locale.US, "%d session=%s thread=%s event=%s %s",
                 System.currentTimeMillis(), SESSION, Thread.currentThread().getName(), event, safe);
@@ -37,37 +37,11 @@ public final class RtDiagnostics {
         final Context app = context.getApplicationContext();
         final String snapshot;
         synchronized (RtDiagnostics.class) {
-            StringBuilder text = new StringBuilder("trigger=").append(trigger).append('\n');
+            StringBuilder text = new StringBuilder();
             for (String event : EVENTS) text.append(event).append('\n');
-            snapshot = text.toString();
+            // Preserve the newest failure instead of truncating it behind older progress events.
+            snapshot = text.substring(Math.max(0, text.length() - 7400));
         }
-        new Thread(() -> {
-            HttpURLConnection connection = null;
-            try {
-                String version = app.getPackageManager().getPackageInfo(app.getPackageName(), 0).versionName;
-                JSONObject json = new JSONObject();
-                json.put("app", "rtremote-diag");
-                json.put("version", version);
-                json.put("device", Build.MANUFACTURER + " " + Build.MODEL + " Android " + Build.VERSION.RELEASE);
-                json.put("happenedAt", System.currentTimeMillis());
-                json.put("stack", snapshot);
-                byte[] body = json.toString().getBytes(StandardCharsets.UTF_8);
-                connection = (HttpURLConnection) new URL(ENDPOINT).openConnection();
-                connection.setRequestMethod("POST");
-                connection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
-                connection.setConnectTimeout(8000);
-                connection.setReadTimeout(8000);
-                connection.setDoOutput(true);
-                connection.getOutputStream().write(body);
-                int status = connection.getResponseCode();
-                LimeLog.info("RTDIAG upload trigger=" + trigger + " status=" + status);
-            }
-            catch (Exception error) {
-                LimeLog.warning("RTDIAG upload failed trigger=" + trigger + " error=" + error);
-            }
-            finally {
-                if (connection != null) connection.disconnect();
-            }
-        }, "rt-diagnostic-upload").start();
+        DiagnosticDelivery.enqueue(app, trigger, snapshot);
     }
 }

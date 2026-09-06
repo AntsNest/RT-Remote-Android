@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.limelight.antsnest.RtTunnelManager;
+import com.limelight.antsnest.RtDiagnostics;
+import com.limelight.antsnest.DiagnosticOutbox;
 import com.limelight.binding.PlatformBinding;
 import com.limelight.computers.ComputerManagerService;
 import com.limelight.R;
@@ -165,22 +167,31 @@ public class AddComputerManually extends Activity {
         String tunnelTarget = parseTunnelInput(rawUserInput);
         if (tunnelTarget != null) {
             String[] parts = tunnelTarget.split("/", 2);
+            long tunnelStartedAt = System.currentTimeMillis();
+            RtDiagnostics.record("initial_tunnel_connect", "device=" + parts[0]);
             boolean tunnelUp = RtTunnelManager.connect(parts[0], parts[1]);
             if (!tunnelUp) {
                 dialog.dismiss();
-                final String reason = RtTunnelManager.lastError();
+                String nativeReason = RtTunnelManager.lastError();
+                final String reason = DiagnosticOutbox.redact(nativeReason == null ? "상세 응답 없음" : nativeReason)
+                        .replace(parts[1], "[redacted]");
+                RtDiagnostics.record("initial_tunnel_failed", "device=" + parts[0] + " elapsedMs=" +
+                        (System.currentTimeMillis() - tunnelStartedAt) + " reason=" + reason);
+                RtDiagnostics.upload(this, "initial_tunnel_failed");
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Dialog.displayDialog(AddComputerManually.this,
                                 getResources().getString(R.string.conn_error_title),
-                                "원격 터널 연결 실패: " + reason, false);
+                                "원격 터널 연결 실패: " + reason + "\n\nPC의 RT 호스트 실행 상태와 인터넷 연결을 확인해 주세요. " +
+                                        "오류 기록은 기기에 보관하고 네트워크 연결 시 서버 전송을 재시도합니다.", false);
                     }
                 });
                 return;
             }
             // 터널이 열렸다 — 이제 PC 는 127.0.0.1 의 Sunshine 이다.
             rawUserInput = "127.0.0.1";
+            RtDiagnostics.record("initial_tunnel_connected", "elapsedMs=" + (System.currentTimeMillis() - tunnelStartedAt));
         }
 
         try {
@@ -230,6 +241,12 @@ public class AddComputerManually extends Activity {
         }
 
         dialog.dismiss();
+
+        if (tunnelTarget != null && !success) {
+            RtDiagnostics.record("initial_sunshine_failed", "invalidInput=" + invalidInput +
+                    " wrongSubnet=" + wrongSiteLocal + " connectivityResult=" + portTestResult);
+            RtDiagnostics.upload(this, "initial_sunshine_failed");
+        }
 
         if (invalidInput) {
             Dialog.displayDialog(this, getResources().getString(R.string.conn_error_title), getResources().getString(R.string.addpc_unknown_host), false);
