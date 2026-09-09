@@ -42,7 +42,7 @@ static int sock;
 
 // This is a small executable that runs in a root shell. It reads input
 // devices and writes the evdev output packets to a socket. This allows
-// Moonlight to read input devices without having to muck with changing
+// RT Remote to read input devices without having to muck with changing
 // device permissions or modifying SELinux policy (which is prevented in
 // Marshmallow anyway).
 
