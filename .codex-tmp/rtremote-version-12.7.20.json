@@ -1,0 +1,6 @@
+{
+  "versionCode": 340,
+  "versionName": "12.7.20",
+  "url": "https://cast.antsnest.co.kr/download/RTRemote-Android-12.7.20.apk",
+  "notes": "블루투스 키보드 Alt+Tab을 Android 앱 전환으로 넘기지 않고 원격 Windows에 전달하도록 수정했습니다."
+}

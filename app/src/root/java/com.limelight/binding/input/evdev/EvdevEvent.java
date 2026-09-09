@@ -1,4 +1,4 @@
-package com.limelight.binding.input.evdev;
+package kr.co.antsnest.rtremote.binding.input.evdev;
 
 public class EvdevEvent {
     public static final int EVDEV_MIN_EVENT_SIZE = 16;

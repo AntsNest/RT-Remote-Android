@@ -5,7 +5,7 @@ android {
 
     compileSdk 34
 
-    namespace 'com.limelight'
+    namespace 'kr.co.antsnest.rtremote'
 
     defaultConfig {
         minSdk 21
