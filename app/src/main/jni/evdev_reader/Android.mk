@@ -1,4 +1,4 @@
-# Android.mk for Limelight's Evdev Reader
+# Android.mk for RT Remote's Evdev Reader
 MY_LOCAL_PATH := $(call my-dir)
 
 include $(call all-subdir-makefiles)
