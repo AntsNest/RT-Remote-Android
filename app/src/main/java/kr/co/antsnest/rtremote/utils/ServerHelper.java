@@ -14,7 +14,7 @@ import kr.co.antsnest.rtremote.nvstream.http.ComputerDetails;
 import kr.co.antsnest.rtremote.nvstream.http.HostHttpResponseException;
 import kr.co.antsnest.rtremote.nvstream.http.NvApp;
 import kr.co.antsnest.rtremote.nvstream.http.NvHTTP;
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -92,11 +92,11 @@ public class ServerHelper {
                         parent.getResources().getString(R.string.nettest_text_waiting),
                         false);
 
-                int ret = MoonBridge.testClientConnectivity(CONNECTION_TEST_SERVER, 443, MoonBridge.ML_PORT_FLAG_ALL);
+                int ret = RtBridge.testClientConnectivity(CONNECTION_TEST_SERVER, 443, RtBridge.ML_PORT_FLAG_ALL);
                 spinnerDialog.dismiss();
 
                 String dialogSummary;
-                if (ret == MoonBridge.ML_TEST_RESULT_INCONCLUSIVE) {
+                if (ret == RtBridge.ML_TEST_RESULT_INCONCLUSIVE) {
                     dialogSummary = parent.getResources().getString(R.string.nettest_text_inconclusive);
                 }
                 else if (ret == 0) {
@@ -104,7 +104,7 @@ public class ServerHelper {
                 }
                 else {
                     dialogSummary = parent.getResources().getString(R.string.nettest_text_failure);
-                    dialogSummary += MoonBridge.stringifyPortFlags(ret, "\n");
+                    dialogSummary += RtBridge.stringifyPortFlags(ret, "\n");
                 }
 
                 Dialog.displayDialog(parent,

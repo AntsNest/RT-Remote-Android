@@ -8,7 +8,7 @@ import android.hardware.usb.UsbInterface;
 import android.os.Build;
 import android.view.InputDevice;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 
 import java.nio.ByteBuffer;
 
@@ -60,14 +60,14 @@ public class Xbox360WirelessDongle extends AbstractController {
 
         int res = connection.bulkTransfer(endpoint, commandBuffer, commandBuffer.length, 3000);
         if (res != commandBuffer.length) {
-            LimeLog.warning("LED set transfer failed: "+res);
+            RtLog.warning("LED set transfer failed: "+res);
         }
     }
 
     private void sendLedCommandToInterface(UsbInterface iface, int controllerIndex) {
         // Claim this interface to kick xpad off it (temporarily)
         if (!connection.claimInterface(iface, true)) {
-            LimeLog.warning("Failed to claim interface: "+iface.getId());
+            RtLog.warning("Failed to claim interface: "+iface.getId());
             return;
         }
 

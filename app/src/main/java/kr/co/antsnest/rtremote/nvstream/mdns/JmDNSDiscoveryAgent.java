@@ -17,7 +17,7 @@ import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import javax.jmdns.impl.NetworkTopologyDiscoveryImpl;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 
 public class JmDNSDiscoveryAgent extends MdnsDiscoveryAgent implements ServiceListener {
     private static final String SERVICE_TYPE = "_nvstream._tcp.local.";
@@ -144,7 +144,7 @@ public class JmDNSDiscoveryAgent extends MdnsDiscoveryAgent implements ServiceLi
 
         // Create the multicast lock required to receive mDNS traffic
         WifiManager wifiMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        multicastLock = wifiMgr.createMulticastLock("Limelight mDNS");
+        multicastLock = wifiMgr.createMulticastLock("RT Remote mDNS");
         multicastLock.setReferenceCounted(false);
     }
 
@@ -157,7 +157,7 @@ public class JmDNSDiscoveryAgent extends MdnsDiscoveryAgent implements ServiceLi
             handleServiceInfo(info);
         } catch (UnsupportedEncodingException e) {
             // Invalid DNS response
-            LimeLog.info("mDNS: Invalid response for machine: "+info.getName());
+            RtLog.info("mDNS: Invalid response for machine: "+info.getName());
             return;
         }
     }
@@ -196,10 +196,10 @@ public class JmDNSDiscoveryAgent extends MdnsDiscoveryAgent implements ServiceLi
                             pendingNames = new ArrayList<String>(pendingResolution);
                         }
                         for (String name : pendingNames) {
-                            LimeLog.info("mDNS: Retrying service resolution for machine: "+name);
+                            RtLog.info("mDNS: Retrying service resolution for machine: "+name);
                             ServiceInfo[] infos = resolver.getServiceInfos(SERVICE_TYPE, name, 500);
                             if (infos != null && infos.length != 0) {
-                                LimeLog.info("mDNS: Resolved (retry) with "+infos.length+" service entries");
+                                RtLog.info("mDNS: Resolved (retry) with "+infos.length+" service entries");
                                 for (ServiceInfo svcinfo : infos) {
                                     handleResolvedServiceInfo(svcinfo);
                                 }
@@ -242,7 +242,7 @@ public class JmDNSDiscoveryAgent extends MdnsDiscoveryAgent implements ServiceLi
 
     @Override
     public void serviceAdded(ServiceEvent event) {
-        LimeLog.info("mDNS: Machine appeared: "+event.getInfo().getName());
+        RtLog.info("mDNS: Machine appeared: "+event.getInfo().getName());
 
         ServiceInfo info = event.getDNS().getServiceInfo(SERVICE_TYPE, event.getInfo().getName(), 500);
         if (info == null) {
@@ -253,13 +253,13 @@ public class JmDNSDiscoveryAgent extends MdnsDiscoveryAgent implements ServiceLi
             return;
         }
         
-        LimeLog.info("mDNS: Resolved (blocking)");
+        RtLog.info("mDNS: Resolved (blocking)");
         handleResolvedServiceInfo(info);
     }
 
     @Override
     public void serviceRemoved(ServiceEvent event) {
-        LimeLog.info("mDNS: Machine disappeared: "+event.getInfo().getName());
+        RtLog.info("mDNS: Machine disappeared: "+event.getInfo().getName());
     }
 
     @Override

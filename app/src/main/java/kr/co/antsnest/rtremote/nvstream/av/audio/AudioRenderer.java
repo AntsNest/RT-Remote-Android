@@ -1,9 +1,9 @@
 package kr.co.antsnest.rtremote.nvstream.av.audio;
 
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 
 public interface AudioRenderer {
-    int setup(MoonBridge.AudioConfiguration audioConfiguration, int sampleRate, int samplesPerFrame);
+    int setup(RtBridge.AudioConfiguration audioConfiguration, int sampleRate, int samplesPerFrame);
 
     void start();
 

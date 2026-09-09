@@ -3,7 +3,7 @@ package kr.co.antsnest.rtremote.antsnest;
 import android.content.Context;
 import android.os.Build;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 
 import org.json.JSONObject;
 
@@ -30,7 +30,7 @@ public final class RtDiagnostics {
                 System.currentTimeMillis(), SESSION, Thread.currentThread().getName(), event, safe);
         if (EVENTS.size() >= MAX_EVENTS) EVENTS.removeFirst();
         EVENTS.addLast(line);
-        LimeLog.info("RTDIAG " + line);
+        RtLog.info("RTDIAG " + line);
     }
 
     public static void upload(Context context, String trigger) {

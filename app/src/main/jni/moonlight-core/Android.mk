@@ -6,7 +6,7 @@ include $(call all-subdir-makefiles)
 LOCAL_PATH := $(MY_LOCAL_PATH)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE    := moonlight-core
+LOCAL_MODULE    := rtcore
 
 LOCAL_SRC_FILES := moonlight-common-c/src/AudioStream.c \
                    moonlight-common-c/src/ByteBuffer.c \

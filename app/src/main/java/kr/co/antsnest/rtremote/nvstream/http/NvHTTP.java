@@ -47,10 +47,10 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import kr.co.antsnest.rtremote.BuildConfig;
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.nvstream.ConnectionContext;
 import kr.co.antsnest.rtremote.nvstream.http.PairingManager.PairState;
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 
 import okhttp3.ConnectionPool;
 import okhttp3.HttpUrl;
@@ -109,7 +109,7 @@ public class NvHTTP {
         throw new IllegalStateException("No X509 trust manager found");
     }
 
-    private void initializeHttpState(final LimelightCryptoProvider cryptoProvider) {
+    private void initializeHttpState(final RtCryptoProvider cryptoProvider) {
         keyManager = new X509KeyManager() {
             public String chooseClientAlias(String[] keyTypes,
                     Principal[] issuers, Socket socket) { return "Limelight-RSA"; }
@@ -199,7 +199,7 @@ public class NvHTTP {
         return new HttpUrl.Builder().scheme("https").host(baseUrlHttp.host()).port(httpsPort).build();
     }
     
-    public NvHTTP(ComputerDetails.AddressTuple address, int httpsPort, String uniqueId, X509Certificate serverCert, LimelightCryptoProvider cryptoProvider) throws IOException {
+    public NvHTTP(ComputerDetails.AddressTuple address, int httpsPort, String uniqueId, X509Certificate serverCert, RtCryptoProvider cryptoProvider) throws IOException {
         // Use the same UID for all Moonlight clients so we can quit games
         // started by other Moonlight clients.
         this.uniqueId = "0123456789ABCDEF";
@@ -470,13 +470,13 @@ public class NvHTTP {
             resp.close();
 
             if (verbose && !path.equals("serverinfo")) {
-                LimeLog.info(getCompleteUrl(baseUrl, path, query)+" -> "+respString);
+                RtLog.info(getCompleteUrl(baseUrl, path, query)+" -> "+respString);
             }
 
             return respString;
         } catch (IOException e) {
             if (verbose && !path.equals("serverinfo")) {
-                LimeLog.warning(getCompleteUrl(baseUrl, path, query)+" -> "+e.getMessage());
+                RtLog.warning(getCompleteUrl(baseUrl, path, query)+" -> "+e.getMessage());
                 e.printStackTrace();
             }
             
@@ -688,7 +688,7 @@ public class NvHTTP {
             
             // Remove uninitialized apps
             if (!app.isInitialized()) {
-                LimeLog.warning("GFE returned incomplete app: "+app.getAppId()+" "+app.getAppName());
+                RtLog.warning("GFE returned incomplete app: "+app.getAppId()+" "+app.getAppName());
                 i.remove();
             }
         }
@@ -780,7 +780,7 @@ public class NvHTTP {
             if (context.negotiatedWidth * context.negotiatedHeight > 1280 * 720 &&
                     context.negotiatedWidth * context.negotiatedHeight != 1920 * 1080 &&
                     context.negotiatedWidth * context.negotiatedHeight != 3840 * 2160) {
-                LimeLog.info("Disabling SOPS due to non-standard resolution: "+context.negotiatedWidth+"x"+context.negotiatedHeight);
+                RtLog.info("Disabling SOPS due to non-standard resolution: "+context.negotiatedWidth+"x"+context.negotiatedHeight);
                 enableSops = false;
             }
         }
@@ -797,7 +797,7 @@ public class NvHTTP {
             "&remoteControllersBitmap=" + context.streamConfig.getAttachedGamepadMask() +
             "&gcmap=" + context.streamConfig.getAttachedGamepadMask() +
             "&gcpersist="+(context.streamConfig.getPersistGamepadsAfterDisconnect() ? 1 : 0) +
-            MoonBridge.getLaunchUrlQueryParameters());
+            RtBridge.getLaunchUrlQueryParameters());
         if ((verb.equals("launch") && !getXmlString(xmlStr, "gamesession", true).equals("0") ||
                 (verb.equals("resume") && !getXmlString(xmlStr, "resume", true).equals("0")))) {
             // sessionUrl0 will be missing for older GFE versions

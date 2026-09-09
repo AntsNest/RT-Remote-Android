@@ -4,7 +4,7 @@ import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.nvstream.input.ControllerPacket;
 
 import java.nio.ByteBuffer;
@@ -72,7 +72,7 @@ public class Xbox360Controller extends AbstractXboxController {
     @Override
     protected boolean handleRead(ByteBuffer buffer) {
         if (buffer.remaining() < 14) {
-            LimeLog.severe("Read too small: "+buffer.remaining());
+            RtLog.severe("Read too small: "+buffer.remaining());
             return false;
         }
 
@@ -129,7 +129,7 @@ public class Xbox360Controller extends AbstractXboxController {
 
         int res = connection.bulkTransfer(outEndpt, commandBuffer, commandBuffer.length, 3000);
         if (res != commandBuffer.length) {
-            LimeLog.warning("LED set transfer failed: "+res);
+            RtLog.warning("LED set transfer failed: "+res);
             return false;
         }
 
@@ -154,7 +154,7 @@ public class Xbox360Controller extends AbstractXboxController {
         };
         int res = connection.bulkTransfer(outEndpt, data, data.length, 100);
         if (res != data.length) {
-            LimeLog.warning("Rumble transfer failed: "+res);
+            RtLog.warning("Rumble transfer failed: "+res);
         }
     }
 

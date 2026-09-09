@@ -28,7 +28,7 @@ import kr.co.antsnest.rtremote.nvstream.http.NvHTTP;
 import kr.co.antsnest.rtremote.nvstream.input.ControllerPacket;
 import kr.co.antsnest.rtremote.nvstream.input.KeyboardPacket;
 import kr.co.antsnest.rtremote.nvstream.input.MouseButtonPacket;
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 import kr.co.antsnest.rtremote.preferences.GlPreferences;
 import kr.co.antsnest.rtremote.preferences.PreferenceConfiguration;
 import kr.co.antsnest.rtremote.ui.GameGestures;
@@ -316,12 +316,12 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         // Make sure Wi-Fi is fully powered up
         WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         try {
-            highPerfWifiLock = wifiMgr.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "Moonlight High Perf Lock");
+            highPerfWifiLock = wifiMgr.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "RT Remote High Perf Lock");
             highPerfWifiLock.setReferenceCounted(false);
             highPerfWifiLock.acquire();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                lowLatencyWifiLock = wifiMgr.createWifiLock(WifiManager.WIFI_MODE_FULL_LOW_LATENCY, "Moonlight Low Latency Lock");
+                lowLatencyWifiLock = wifiMgr.createWifiLock(WifiManager.WIFI_MODE_FULL_LOW_LATENCY, "RT Remote Low Latency Lock");
                 lowLatencyWifiLock.setReferenceCounted(false);
                 lowLatencyWifiLock.acquire();
             }
@@ -434,17 +434,17 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
 
         // H.264 is always supported
-        int supportedVideoFormats = MoonBridge.VIDEO_FORMAT_H264;
+        int supportedVideoFormats = RtBridge.VIDEO_FORMAT_H264;
         if (decoderRenderer.isHevcSupported()) {
-            supportedVideoFormats |= MoonBridge.VIDEO_FORMAT_H265;
+            supportedVideoFormats |= RtBridge.VIDEO_FORMAT_H265;
             if (willStreamHdr && decoderRenderer.isHevcMain10Hdr10Supported()) {
-                supportedVideoFormats |= MoonBridge.VIDEO_FORMAT_H265_MAIN10;
+                supportedVideoFormats |= RtBridge.VIDEO_FORMAT_H265_MAIN10;
             }
         }
         if (decoderRenderer.isAv1Supported()) {
-            supportedVideoFormats |= MoonBridge.VIDEO_FORMAT_AV1_MAIN8;
+            supportedVideoFormats |= RtBridge.VIDEO_FORMAT_AV1_MAIN8;
             if (willStreamHdr && decoderRenderer.isAv1Main10Supported()) {
-                supportedVideoFormats |= MoonBridge.VIDEO_FORMAT_AV1_MAIN10;
+                supportedVideoFormats |= RtBridge.VIDEO_FORMAT_AV1_MAIN10;
             }
         }
 
@@ -462,7 +462,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // Set to the optimal mode for streaming
         float displayRefreshRate = prepareDisplayForRendering();
-        LimeLog.info("Display refresh rate: "+displayRefreshRate);
+        RtLog.info("Display refresh rate: "+displayRefreshRate);
 
         // If the user requested frame pacing using a capped FPS, we will need to change our
         // desired FPS setting here in accordance with the active display refresh rate.
@@ -473,15 +473,15 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 if (prefConfig.fps > roundedRefreshRate + 3) {
                     // Use frame drops when rendering above the screen frame rate
                     prefConfig.framePacing = PreferenceConfiguration.FRAME_PACING_BALANCED;
-                    LimeLog.info("Using drop mode for FPS > Hz");
+                    RtLog.info("Using drop mode for FPS > Hz");
                 } else if (roundedRefreshRate <= 49) {
                     // Let's avoid clearly bogus refresh rates and fall back to legacy rendering
                     prefConfig.framePacing = PreferenceConfiguration.FRAME_PACING_BALANCED;
-                    LimeLog.info("Bogus refresh rate: " + roundedRefreshRate);
+                    RtLog.info("Bogus refresh rate: " + roundedRefreshRate);
                 }
                 else {
                     chosenFrameRate = roundedRefreshRate - 1;
-                    LimeLog.info("Adjusting FPS target for screen to " + chosenFrameRate);
+                    RtLog.info("Adjusting FPS target for screen to " + chosenFrameRate);
                 }
             }
         }
@@ -712,7 +712,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 requestMetaKeyEventMethod.invoke(manager, this.getComponentName(), enabled);
             }
             else {
-                LimeLog.warning("SemWindowManager.getInstance() returned null");
+                RtLog.warning("SemWindowManager.getInstance() returned null");
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -817,7 +817,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             boolean refreshRateIsGood = isRefreshRateGoodMatch(bestMode.getRefreshRate());
             boolean refreshRateIsEqual = isRefreshRateEqualMatch(bestMode.getRefreshRate());
 
-            LimeLog.info("Current display mode: "+bestMode.getPhysicalWidth()+"x"+
+            RtLog.info("Current display mode: "+bestMode.getPhysicalWidth()+"x"+
                     bestMode.getPhysicalHeight()+"x"+bestMode.getRefreshRate());
 
             for (Display.Mode candidate : display.getSupportedModes()) {
@@ -827,7 +827,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 boolean resolutionFitsStream = candidate.getPhysicalWidth() >= prefConfig.width &&
                         candidate.getPhysicalHeight() >= prefConfig.height;
 
-                LimeLog.info("Examining display mode: "+candidate.getPhysicalWidth()+"x"+
+                RtLog.info("Examining display mode: "+candidate.getPhysicalWidth()+"x"+
                         candidate.getPhysicalHeight()+"x"+candidate.getRefreshRate());
 
                 if (candidate.getPhysicalWidth() > 4096 && prefConfig.width <= 4096) {
@@ -897,7 +897,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 refreshRateIsEqual = isRefreshRateEqualMatch(candidate.getRefreshRate());
             }
 
-            LimeLog.info("Best display mode: "+bestMode.getPhysicalWidth()+"x"+
+            RtLog.info("Best display mode: "+bestMode.getPhysicalWidth()+"x"+
                     bestMode.getPhysicalHeight()+"x"+bestMode.getRefreshRate());
 
             // Only apply new window layout parameters if we've actually changed the display mode
@@ -913,11 +913,11 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                     getWindow().setAttributes(windowLayoutParams);
                 }
                 else {
-                    LimeLog.info("Using setFrameRate() instead of preferredDisplayModeId due to matching resolution");
+                    RtLog.info("Using setFrameRate() instead of preferredDisplayModeId due to matching resolution");
                 }
             }
             else {
-                LimeLog.info("Current display mode is already the best display mode");
+                RtLog.info("Current display mode is already the best display mode");
             }
 
             displayRefreshRate = bestMode.getRefreshRate();
@@ -926,7 +926,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         else {
             float bestRefreshRate = display.getRefreshRate();
             for (float candidate : display.getSupportedRefreshRates()) {
-                LimeLog.info("Examining refresh rate: "+candidate);
+                RtLog.info("Examining refresh rate: "+candidate);
 
                 if (candidate > bestRefreshRate) {
                     // Ensure the frame rate stays around 60 Hz for <= 60 FPS streams
@@ -940,7 +940,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 }
             }
 
-            LimeLog.info("Selected refresh rate: "+bestRefreshRate);
+            RtLog.info("Selected refresh rate: "+bestRefreshRate);
             windowLayoutParams.preferredRefreshRate = bestRefreshRate;
             displayRefreshRate = bestRefreshRate;
 
@@ -963,7 +963,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             double screenAspectRatio = ((double)screenSize.y) / screenSize.x;
             double streamAspectRatio = ((double)prefConfig.height) / prefConfig.width;
             if (Math.abs(screenAspectRatio - streamAspectRatio) < 0.001) {
-                LimeLog.info("Stream has compatible aspect ratio with output display");
+                RtLog.info("Stream has compatible aspect ratio with output display");
                 aspectRatioMatch = true;
             }
         }
@@ -1155,20 +1155,20 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 if (message != null) {
                     message += " [";
 
-                    if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_H264) != 0) {
+                    if ((videoFormat & RtBridge.VIDEO_FORMAT_MASK_H264) != 0) {
                         message += "H.264";
                     }
-                    else if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_H265) != 0) {
+                    else if ((videoFormat & RtBridge.VIDEO_FORMAT_MASK_H265) != 0) {
                         message += "HEVC";
                     }
-                    else if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_AV1) != 0) {
+                    else if ((videoFormat & RtBridge.VIDEO_FORMAT_MASK_AV1) != 0) {
                         message += "AV1";
                     }
                     else {
                         message += "UNKNOWN";
                     }
 
-                    if ((videoFormat & MoonBridge.VIDEO_FORMAT_MASK_10BIT) != 0) {
+                    if ((videoFormat & RtBridge.VIDEO_FORMAT_MASK_10BIT) != 0) {
                         message += " HDR";
                     }
 
@@ -1455,7 +1455,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             }
 
             conn.sendKeyboardInput(translated, KeyboardPacket.KEY_DOWN, getModifierState(event),
-                    keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
+                    keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : RtBridge.SS_KBE_FLAG_NON_NORMALIZED);
         }
 
         return true;
@@ -1519,7 +1519,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             }
 
             conn.sendKeyboardInput(translated, KeyboardPacket.KEY_UP, getModifierState(event),
-                    keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : MoonBridge.SS_KBE_FLAG_NON_NORMALIZED);
+                    keyboardTranslator.hasNormalizedMapping(event.getKeyCode(), event.getDeviceId()) ? 0 : RtBridge.SS_KBE_FLAG_NON_NORMALIZED);
         }
 
         return true;
@@ -1559,7 +1559,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     @Override
     public void toggleKeyboard() {
-        LimeLog.info("Toggling keyboard overlay");
+        RtLog.info("Toggling keyboard overlay");
         InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.toggleSoftInput(0, 0);
     }
@@ -1596,37 +1596,37 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                return MoonBridge.LI_TOUCH_EVENT_DOWN;
+                return RtBridge.LI_TOUCH_EVENT_DOWN;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
                 if ((event.getFlags() & MotionEvent.FLAG_CANCELED) != 0) {
-                    return MoonBridge.LI_TOUCH_EVENT_CANCEL;
+                    return RtBridge.LI_TOUCH_EVENT_CANCEL;
                 }
                 else {
-                    return MoonBridge.LI_TOUCH_EVENT_UP;
+                    return RtBridge.LI_TOUCH_EVENT_UP;
                 }
 
             case MotionEvent.ACTION_MOVE:
-                return MoonBridge.LI_TOUCH_EVENT_MOVE;
+                return RtBridge.LI_TOUCH_EVENT_MOVE;
 
             case MotionEvent.ACTION_CANCEL:
                 // ACTION_CANCEL applies to *all* pointers in the gesture, so it maps to CANCEL_ALL
                 // rather than CANCEL. For a single pointer cancellation, that's indicated via
                 // FLAG_CANCELED on a ACTION_POINTER_UP.
                 // https://developer.android.com/develop/ui/views/touch-and-input/gestures/multi
-                return MoonBridge.LI_TOUCH_EVENT_CANCEL_ALL;
+                return RtBridge.LI_TOUCH_EVENT_CANCEL_ALL;
 
             case MotionEvent.ACTION_HOVER_ENTER:
             case MotionEvent.ACTION_HOVER_MOVE:
-                return MoonBridge.LI_TOUCH_EVENT_HOVER;
+                return RtBridge.LI_TOUCH_EVENT_HOVER;
 
             case MotionEvent.ACTION_HOVER_EXIT:
-                return MoonBridge.LI_TOUCH_EVENT_HOVER_LEAVE;
+                return RtBridge.LI_TOUCH_EVENT_HOVER_LEAVE;
 
             case MotionEvent.ACTION_BUTTON_PRESS:
             case MotionEvent.ACTION_BUTTON_RELEASE:
-                return MoonBridge.LI_TOUCH_EVENT_BUTTON_ONLY;
+                return RtBridge.LI_TOUCH_EVENT_BUTTON_ONLY;
 
             default:
                return -1;
@@ -1692,7 +1692,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 return rotationDegrees;
             }
         }
-        return MoonBridge.LI_ROT_UNKNOWN;
+        return RtBridge.LI_ROT_UNKNOWN;
     }
 
     private static float[] polarToCartesian(float r, float theta) {
@@ -1753,13 +1753,13 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private boolean sendPenEventForPointer(View view, MotionEvent event, byte eventType, byte toolType, int pointerIndex) {
         byte penButtons = 0;
         if ((event.getButtonState() & MotionEvent.BUTTON_STYLUS_PRIMARY) != 0) {
-            penButtons |= MoonBridge.LI_PEN_BUTTON_PRIMARY;
+            penButtons |= RtBridge.LI_PEN_BUTTON_PRIMARY;
         }
         if ((event.getButtonState() & MotionEvent.BUTTON_STYLUS_SECONDARY) != 0) {
-            penButtons |= MoonBridge.LI_PEN_BUTTON_SECONDARY;
+            penButtons |= RtBridge.LI_PEN_BUTTON_SECONDARY;
         }
 
-        byte tiltDegrees = MoonBridge.LI_TILT_UNKNOWN;
+        byte tiltDegrees = RtBridge.LI_TILT_UNKNOWN;
         InputDevice dev = event.getDevice();
         if (dev != null) {
             if (dev.getMotionRange(MotionEvent.AXIS_TILT, event.getSource()) != null) {
@@ -1773,17 +1773,17 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 normalizedCoords[0], normalizedCoords[1],
                 getPressureOrDistance(event, pointerIndex),
                 normalizedContactArea[0], normalizedContactArea[1],
-                getRotationDegrees(event, pointerIndex), tiltDegrees) != MoonBridge.LI_ERR_UNSUPPORTED;
+                getRotationDegrees(event, pointerIndex), tiltDegrees) != RtBridge.LI_ERR_UNSUPPORTED;
     }
 
     private static byte convertToolTypeToStylusToolType(MotionEvent event, int pointerIndex) {
         switch (event.getToolType(pointerIndex)) {
             case MotionEvent.TOOL_TYPE_ERASER:
-                return MoonBridge.LI_TOOL_TYPE_ERASER;
+                return RtBridge.LI_TOOL_TYPE_ERASER;
             case MotionEvent.TOOL_TYPE_STYLUS:
-                return MoonBridge.LI_TOOL_TYPE_PEN;
+                return RtBridge.LI_TOOL_TYPE_PEN;
             default:
-                return MoonBridge.LI_TOOL_TYPE_UNKNOWN;
+                return RtBridge.LI_TOOL_TYPE_UNKNOWN;
         }
     }
 
@@ -1798,7 +1798,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             boolean handledStylusEvent = false;
             for (int i = 0; i < event.getPointerCount(); i++) {
                 byte toolType = convertToolTypeToStylusToolType(event, i);
-                if (toolType == MoonBridge.LI_TOOL_TYPE_UNKNOWN) {
+                if (toolType == RtBridge.LI_TOOL_TYPE_UNKNOWN) {
                     // Not a stylus pointer, so skip it
                     continue;
                 }
@@ -1816,14 +1816,14 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
         else if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
             // Cancel impacts all active pointers
-            return conn.sendPenEvent(MoonBridge.LI_TOUCH_EVENT_CANCEL_ALL, MoonBridge.LI_TOOL_TYPE_UNKNOWN, (byte)0,
+            return conn.sendPenEvent(RtBridge.LI_TOUCH_EVENT_CANCEL_ALL, RtBridge.LI_TOOL_TYPE_UNKNOWN, (byte)0,
                     0, 0, 0, 0, 0,
-                    MoonBridge.LI_ROT_UNKNOWN, MoonBridge.LI_TILT_UNKNOWN) != MoonBridge.LI_ERR_UNSUPPORTED;
+                    RtBridge.LI_ROT_UNKNOWN, RtBridge.LI_TILT_UNKNOWN) != RtBridge.LI_ERR_UNSUPPORTED;
         }
         else {
             // Up, Down, and Hover events are specific to the action index
             byte toolType = convertToolTypeToStylusToolType(event, event.getActionIndex());
-            if (toolType == MoonBridge.LI_TOOL_TYPE_UNKNOWN) {
+            if (toolType == RtBridge.LI_TOOL_TYPE_UNKNOWN) {
                 // Not a stylus event
                 return false;
             }
@@ -1838,7 +1838,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 normalizedCoords[0], normalizedCoords[1],
                 getPressureOrDistance(event, pointerIndex),
                 normalizedContactArea[0], normalizedContactArea[1],
-                getRotationDegrees(event, pointerIndex)) != MoonBridge.LI_ERR_UNSUPPORTED;
+                getRotationDegrees(event, pointerIndex)) != RtBridge.LI_ERR_UNSUPPORTED;
     }
 
     private boolean trySendTouchEvent(View view, MotionEvent event) {
@@ -1858,9 +1858,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
         else if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
             // Cancel impacts all active pointers
-            return conn.sendTouchEvent(MoonBridge.LI_TOUCH_EVENT_CANCEL_ALL, 0,
+            return conn.sendTouchEvent(RtBridge.LI_TOUCH_EVENT_CANCEL_ALL, 0,
                     0, 0, 0, 0, 0,
-                    MoonBridge.LI_ROT_UNKNOWN) != MoonBridge.LI_ERR_UNSUPPORTED;
+                    RtBridge.LI_ROT_UNKNOWN) != RtBridge.LI_ERR_UNSUPPORTED;
         }
         else {
             // Up, Down, and Hover events are specific to the action index
@@ -2373,7 +2373,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             }
             displayedFailureDialog = true;
             final long delayMs = RtSessionRecoveryPolicy.DELAYS_MS[retryCount];
-            LimeLog.warning("RT session recovery scheduled after " + reason + " (" +
+            RtLog.warning("RT session recovery scheduled after " + reason + " (" +
                     (retryCount + 1) + "/" + RtSessionRecoveryPolicy.DELAYS_MS.length +
                     ", delay=" + delayMs + "ms)");
             Toast.makeText(Game.this,
@@ -2423,7 +2423,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                             tunnelReady = true;
                             break;
                         }
-                        LimeLog.warning("RT tunnel reconnect attempt " + attempt +
+                        RtLog.warning("RT tunnel reconnect attempt " + attempt +
                                 " failed: " + kr.co.antsnest.rtremote.antsnest.RtTunnelManager.lastError());
                         RtDiagnostics.record("tunnel_reconnect_failed", "attempt=" + attempt +
                                 " error=" + kr.co.antsnest.rtremote.antsnest.RtTunnelManager.lastError());
@@ -2527,7 +2527,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
         // Perform a connection test if the failure could be due to a blocked port
         // This does network I/O, so don't do it on the main thread.
-        final int portTestResult = MoonBridge.testClientConnectivity(ServerHelper.CONNECTION_TEST_SERVER, 443, portFlags);
+        final int portTestResult = RtBridge.testClientConnectivity(ServerHelper.CONNECTION_TEST_SERVER, 443, portFlags);
 
         runOnUiThread(new Runnable() {
             @Override
@@ -2539,7 +2539,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
                 if (!displayedFailureDialog) {
                     displayedFailureDialog = true;
-                    LimeLog.severe(stage + " failed: " + errorCode);
+                    RtLog.severe(stage + " failed: " + errorCode);
 
                     // If video initialization failed and the surface is still valid, display extra information for the user
                     if (stage.contains("video") && streamView.getHolder().getSurface().isValid()) {
@@ -2550,10 +2550,10 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
                     if (portFlags != 0) {
                         dialogText += "\n\n" + getResources().getString(R.string.check_ports_msg) + "\n" +
-                                MoonBridge.stringifyPortFlags(portFlags, "\n");
+                                RtBridge.stringifyPortFlags(portFlags, "\n");
                     }
 
-                    if (portTestResult != MoonBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0)  {
+                    if (portTestResult != RtBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0)  {
                         dialogText += "\n\n" + getResources().getString(R.string.nettest_text_blocked);
                     }
 
@@ -2573,8 +2573,8 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
         // Perform a connection test if the failure could be due to a blocked port
         // This does network I/O, so don't do it on the main thread.
-        final int portFlags = MoonBridge.getPortFlagsFromTerminationErrorCode(errorCode);
-        final int portTestResult = MoonBridge.testClientConnectivity(ServerHelper.CONNECTION_TEST_SERVER,443, portFlags);
+        final int portFlags = RtBridge.getPortFlagsFromTerminationErrorCode(errorCode);
+        final int portTestResult = RtBridge.testClientConnectivity(ServerHelper.CONNECTION_TEST_SERVER,443, portFlags);
 
         runOnUiThread(new Runnable() {
             @Override
@@ -2590,34 +2590,34 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
                 if (!displayedFailureDialog) {
                     displayedFailureDialog = true;
-                    LimeLog.severe("Connection terminated: " + errorCode);
+                    RtLog.severe("Connection terminated: " + errorCode);
                     stopConnection();
 
                     // Display the error dialog if it was an unexpected termination.
                     // Otherwise, just finish the activity immediately.
-                    if (errorCode != MoonBridge.ML_ERROR_GRACEFUL_TERMINATION) {
+                    if (errorCode != RtBridge.ML_ERROR_GRACEFUL_TERMINATION) {
                         String message;
 
-                        if (portTestResult != MoonBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0) {
+                        if (portTestResult != RtBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0) {
                             // If we got a blocked result, that supersedes any other error message
                             message = getResources().getString(R.string.nettest_text_blocked);
                         }
                         else {
                             switch (errorCode) {
-                                case MoonBridge.ML_ERROR_NO_VIDEO_TRAFFIC:
+                                case RtBridge.ML_ERROR_NO_VIDEO_TRAFFIC:
                                     message = getResources().getString(R.string.no_video_received_error);
                                     break;
 
-                                case MoonBridge.ML_ERROR_NO_VIDEO_FRAME:
+                                case RtBridge.ML_ERROR_NO_VIDEO_FRAME:
                                     message = getResources().getString(R.string.no_frame_received_error);
                                     break;
 
-                                case MoonBridge.ML_ERROR_UNEXPECTED_EARLY_TERMINATION:
-                                case MoonBridge.ML_ERROR_PROTECTED_CONTENT:
+                                case RtBridge.ML_ERROR_UNEXPECTED_EARLY_TERMINATION:
+                                case RtBridge.ML_ERROR_PROTECTED_CONTENT:
                                     message = getResources().getString(R.string.early_termination_error);
                                     break;
 
-                                case MoonBridge.ML_ERROR_FRAME_CONVERSION:
+                                case RtBridge.ML_ERROR_FRAME_CONVERSION:
                                     message = getResources().getString(R.string.frame_conversion_error);
                                     break;
 
@@ -2638,7 +2638,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
                         if (portFlags != 0) {
                             message += "\n\n" + getResources().getString(R.string.check_ports_msg) + "\n" +
-                                    MoonBridge.stringifyPortFlags(portFlags, "\n");
+                                    RtBridge.stringifyPortFlags(portFlags, "\n");
                         }
 
                         Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title),
@@ -2661,7 +2661,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                     return;
                 }
 
-                if (connectionStatus == MoonBridge.CONN_STATUS_POOR) {
+                if (connectionStatus == RtBridge.CONN_STATUS_POOR) {
                     if (prefConfig.bitrate > 5000) {
                         notificationOverlayView.setText(getResources().getString(R.string.slow_connection_msg));
                     }
@@ -2671,7 +2671,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
                     requestedNotificationOverlayVisibility = View.VISIBLE;
                 }
-                else if (connectionStatus == MoonBridge.CONN_STATUS_OKAY) {
+                else if (connectionStatus == RtBridge.CONN_STATUS_OKAY) {
                     requestedNotificationOverlayVisibility = View.GONE;
                 }
 
@@ -2762,21 +2762,21 @@ public class Game extends Activity implements SurfaceHolder.Callback,
 
     @Override
     public void rumble(short controllerNumber, short lowFreqMotor, short highFreqMotor) {
-        LimeLog.info(String.format((Locale)null, "Rumble on gamepad %d: %04x %04x", controllerNumber, lowFreqMotor, highFreqMotor));
+        RtLog.info(String.format((Locale)null, "Rumble on gamepad %d: %04x %04x", controllerNumber, lowFreqMotor, highFreqMotor));
 
         controllerHandler.handleRumble(controllerNumber, lowFreqMotor, highFreqMotor);
     }
 
     @Override
     public void rumbleTriggers(short controllerNumber, short leftTrigger, short rightTrigger) {
-        LimeLog.info(String.format((Locale)null, "Rumble on gamepad triggers %d: %04x %04x", controllerNumber, leftTrigger, rightTrigger));
+        RtLog.info(String.format((Locale)null, "Rumble on gamepad triggers %d: %04x %04x", controllerNumber, leftTrigger, rightTrigger));
 
         controllerHandler.handleRumbleTriggers(controllerNumber, leftTrigger, rightTrigger);
     }
 
     @Override
     public void setHdrMode(boolean enabled, byte[] hdrMetadata) {
-        LimeLog.info("Display HDR mode: " + (enabled ? "enabled" : "disabled"));
+        RtLog.info("Display HDR mode: " + (enabled ? "enabled" : "disabled"));
         decoderRenderer.setHdrMode(enabled, hdrMetadata);
     }
 
@@ -2887,7 +2887,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             buttonIndex = MouseButtonPacket.BUTTON_X2;
             break;
         default:
-            LimeLog.warning("Unhandled button: "+buttonId);
+            RtLog.warning("Unhandled button: "+buttonId);
             return;
         }
 

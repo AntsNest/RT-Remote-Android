@@ -3,7 +3,7 @@ package kr.co.antsnest.rtremote.nvstream.http;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 
-public interface LimelightCryptoProvider {
+public interface RtCryptoProvider {
     X509Certificate getClientCertificate();
     PrivateKey getClientPrivateKey();
     byte[] getPemEncodedClientCertificate();

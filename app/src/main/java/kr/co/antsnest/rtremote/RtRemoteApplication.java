@@ -43,8 +43,8 @@ public class RtRemoteApplication extends Application {
         super.onCreate();
 
         try {
-            LimeLog.setFileHandler(new File(getFilesDir(), "rtremote-%g.log").getAbsolutePath());
-            LimeLog.info("RTDIAG app_process_start sdk=" + Build.VERSION.SDK_INT);
+            RtLog.setFileHandler(new File(getFilesDir(), "rtremote-%g.log").getAbsolutePath());
+            RtLog.info("RTDIAG app_process_start sdk=" + Build.VERSION.SDK_INT);
         }
         catch (IOException error) {
             Log.e(TAG, "RT diagnostic file logger initialization failed", error);

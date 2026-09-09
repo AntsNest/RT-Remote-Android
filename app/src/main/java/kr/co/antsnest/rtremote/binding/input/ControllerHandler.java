@@ -33,7 +33,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.widget.Toast;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.R;
 import kr.co.antsnest.rtremote.binding.input.driver.AbstractController;
 import kr.co.antsnest.rtremote.binding.input.driver.UsbDriverListener;
@@ -41,7 +41,7 @@ import kr.co.antsnest.rtremote.binding.input.driver.UsbDriverService;
 import kr.co.antsnest.rtremote.nvstream.NvConnection;
 import kr.co.antsnest.rtremote.nvstream.input.ControllerPacket;
 import kr.co.antsnest.rtremote.nvstream.input.MouseButtonPacket;
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 import kr.co.antsnest.rtremote.preferences.PreferenceConfiguration;
 import kr.co.antsnest.rtremote.ui.GameGestures;
 import kr.co.antsnest.rtremote.utils.Vector2d;
@@ -234,7 +234,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
     public void onInputDeviceRemoved(int deviceId) {
         InputDeviceContext context = inputDeviceContexts.get(deviceId);
         if (context != null) {
-            LimeLog.info("Removed controller: "+context.name+" ("+deviceId+")");
+            RtLog.info("Removed controller: "+context.name+" ("+deviceId+")");
             releaseControllerNumber(context);
             context.destroy();
             inputDeviceContexts.remove(deviceId);
@@ -256,7 +256,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             return;
         }
 
-        LimeLog.info("Device changed: "+existingContext.name+" ("+deviceId+")");
+        RtLog.info("Device changed: "+existingContext.name+" ("+deviceId+")");
 
         // Migrate the existing context into this new one by moving any stateful elements
         InputDeviceContext newContext = createInputDeviceContextForDevice(device);
@@ -374,7 +374,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             }
 
             if (hasJoystickAxes(dev)) {
-                LimeLog.info("Counting InputDevice: "+dev.getName());
+                RtLog.info("Counting InputDevice: "+dev.getName());
                 mask |= 1 << count++;
             }
         }
@@ -388,7 +388,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                     // otherwise we will double count them.
                     if (UsbDriverService.shouldClaimDevice(dev, false) &&
                             !UsbDriverService.isRecognizedInputDevice(dev)) {
-                        LimeLog.info("Counting UsbDevice: "+dev.getDeviceName());
+                        RtLog.info("Counting UsbDevice: "+dev.getDeviceName());
                         mask |= 1 << count++;
                     }
                 }
@@ -396,18 +396,18 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         }
 
         if (PreferenceConfiguration.readPreferences(context).onscreenController) {
-            LimeLog.info("Counting OSC gamepad");
+            RtLog.info("Counting OSC gamepad");
             mask |= 1;
         }
 
-        LimeLog.info("Enumerated "+count+" gamepads");
+        RtLog.info("Enumerated "+count+" gamepads");
         return mask;
     }
 
     private void releaseControllerNumber(GenericControllerContext context) {
         // If we reserved a controller number, remove that reservation
         if (context.reservedControllerNumber) {
-            LimeLog.info("Controller number "+context.controllerNumber+" is now available");
+            RtLog.info("Controller number "+context.controllerNumber+" is now available");
             currentControllers &= ~(1 << context.controllerNumber);
         }
 
@@ -458,15 +458,15 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         if (context instanceof InputDeviceContext) {
             InputDeviceContext devContext = (InputDeviceContext) context;
 
-            LimeLog.info(devContext.name+" ("+context.id+") needs a controller number assigned");
+            RtLog.info(devContext.name+" ("+context.id+") needs a controller number assigned");
             if (!devContext.external) {
-                LimeLog.info("Built-in buttons hardcoded as controller 0");
+                RtLog.info("Built-in buttons hardcoded as controller 0");
                 context.controllerNumber = 0;
             }
             else if (prefConfig.multiController && devContext.hasJoystickAxes) {
                 context.controllerNumber = 0;
 
-                LimeLog.info("Reserving the next available controller number");
+                RtLog.info("Reserving the next available controller number");
                 for (short i = 0; i < MAX_GAMEPADS; i++) {
                     if ((currentControllers & (1 << i)) == 0) {
                         // Found an unused controller value
@@ -494,7 +494,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 if (!isAssociatedJoystick(devContext.inputDevice, associatedDevice)) {
                     associatedDevice = InputDevice.getDevice(devContext.id - 1);
                     if (!isAssociatedJoystick(devContext.inputDevice, associatedDevice)) {
-                        LimeLog.info("No associated joystick device found");
+                        RtLog.info("No associated joystick device found");
                         associatedDevice = null;
                     }
                 }
@@ -516,11 +516,11 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                     // Propagate the associated controller number
                     context.controllerNumber = associatedDeviceContext.controllerNumber;
 
-                    LimeLog.info("Propagated controller number from "+associatedDeviceContext.name);
+                    RtLog.info("Propagated controller number from "+associatedDeviceContext.name);
                 }
             }
             else {
-                LimeLog.info("Not reserving a controller number");
+                RtLog.info("Not reserving a controller number");
                 context.controllerNumber = 0;
             }
 
@@ -533,7 +533,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             if (prefConfig.multiController) {
                 context.controllerNumber = 0;
 
-                LimeLog.info("Reserving the next available controller number");
+                RtLog.info("Reserving the next available controller number");
                 for (short i = 0; i < MAX_GAMEPADS; i++) {
                     if ((currentControllers & (1 << i)) == 0) {
                         // Found an unused controller value
@@ -549,12 +549,12 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 }
             }
             else {
-                LimeLog.info("Not reserving a controller number");
+                RtLog.info("Not reserving a controller number");
                 context.controllerNumber = 0;
             }
         }
 
-        LimeLog.info("Assigned as controller "+context.controllerNumber);
+        RtLog.info("Assigned as controller "+context.controllerNumber);
         context.assignedControllerNumber = true;
 
         // Report attributes of this new controller to the host
@@ -601,7 +601,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
         // We can't use the platform API, so we'll have to just guess based on the gamepad type.
         // If this is a PlayStation controller with a touchpad, we know it has a clickpad.
-        return type == MoonBridge.LI_CTYPE_PS;
+        return type == RtBridge.LI_CTYPE_PS;
     }
 
     private static boolean isExternal(InputDevice dev) {
@@ -621,7 +621,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 deviceName.equalsIgnoreCase("GR0006") // Gamepad on Logitech G Cloud
         )
         {
-            LimeLog.info(dev.getName()+" is internal by hardcoded mapping");
+            RtLog.info(dev.getName()+" is internal by hardcoded mapping");
             return false;
         }
 
@@ -711,10 +711,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         InputDeviceContext context = new InputDeviceContext();
         String devName = dev.getName();
 
-        LimeLog.info("Creating controller context for device: "+devName);
-        LimeLog.info("Vendor ID: " + dev.getVendorId());
-        LimeLog.info("Product ID: "+dev.getProductId());
-        LimeLog.info(dev.toString());
+        RtLog.info("Creating controller context for device: "+devName);
+        RtLog.info("Vendor ID: " + dev.getVendorId());
+        RtLog.info("Product ID: "+dev.getProductId());
+        RtLog.info(dev.toString());
 
         context.inputDevice = dev;
         context.name = devName;
@@ -726,8 +726,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
         // These aren't always present in the Android key layout files, so they won't show up
         // in our normal InputDevice.hasKeys() probing.
-        context.hasPaddles = MoonBridge.guessControllerHasPaddles(context.vendorId, context.productId);
-        context.hasShare = MoonBridge.guessControllerHasShareButton(context.vendorId, context.productId);
+        context.hasPaddles = RtBridge.guessControllerHasPaddles(context.vendorId, context.productId);
+        context.hasShare = RtBridge.guessControllerHasShareButton(context.vendorId, context.productId);
 
         // Try to use the InputDevice's associated vibrators first
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && hasQuadAmplitudeControlledRumbleVibrators(dev.getVibratorManager())) {
@@ -840,10 +840,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             if (rxRange != null && ryRange != null && devName != null) {
                 if (dev.getVendorId() == 0x054c) { // Sony
                     if (dev.hasKeys(KeyEvent.KEYCODE_BUTTON_C)[0]) {
-                        LimeLog.info("Detected non-standard DualShock 4 mapping");
+                        RtLog.info("Detected non-standard DualShock 4 mapping");
                         context.isNonStandardDualShock4 = true;
                     } else {
-                        LimeLog.info("Detected DualShock 4 (Linux standard mapping)");
+                        RtLog.info("Detected DualShock 4 (Linux standard mapping)");
                         context.usesLinuxGamepadStandardFaceButtons = true;
                     }
                 }
@@ -999,8 +999,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             context.hasMode = false;
         }
 
-        LimeLog.info("Analog stick deadzone: "+context.leftStickDeadzoneRadius+" "+context.rightStickDeadzoneRadius);
-        LimeLog.info("Trigger deadzone: "+context.triggerDeadzone);
+        RtLog.info("Analog stick deadzone: "+context.leftStickDeadzoneRadius+" "+context.rightStickDeadzoneRadius);
+        RtLog.info("Trigger deadzone: "+context.triggerDeadzone);
 
         return context;
     }
@@ -1156,23 +1156,23 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
             switch (currentBatteryStatus) {
                 case BatteryState.STATUS_UNKNOWN:
-                    state = MoonBridge.LI_BATTERY_STATE_UNKNOWN;
+                    state = RtBridge.LI_BATTERY_STATE_UNKNOWN;
                     break;
 
                 case BatteryState.STATUS_CHARGING:
-                    state = MoonBridge.LI_BATTERY_STATE_CHARGING;
+                    state = RtBridge.LI_BATTERY_STATE_CHARGING;
                     break;
 
                 case BatteryState.STATUS_DISCHARGING:
-                    state = MoonBridge.LI_BATTERY_STATE_DISCHARGING;
+                    state = RtBridge.LI_BATTERY_STATE_DISCHARGING;
                     break;
 
                 case BatteryState.STATUS_NOT_CHARGING:
-                    state = MoonBridge.LI_BATTERY_STATE_NOT_CHARGING;
+                    state = RtBridge.LI_BATTERY_STATE_NOT_CHARGING;
                     break;
 
                 case BatteryState.STATUS_FULL:
-                    state = MoonBridge.LI_BATTERY_STATE_FULL;
+                    state = RtBridge.LI_BATTERY_STATE_FULL;
                     break;
 
                 default:
@@ -1180,7 +1180,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             }
 
             if (Float.isNaN(currentBatteryCapacity)) {
-                percentage = MoonBridge.LI_BATTERY_PERCENTAGE_UNKNOWN;
+                percentage = RtBridge.LI_BATTERY_PERCENTAGE_UNKNOWN;
             }
             else {
                 percentage = (byte)(currentBatteryCapacity * 100);
@@ -1674,7 +1674,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
         return conn.sendControllerTouchEvent((byte)context.controllerNumber, touchType,
                 event.getPointerId(pointerIndex),
-                normalizedX, normalizedY, normalizedPressure) != MoonBridge.LI_ERR_UNSUPPORTED;
+                normalizedX, normalizedY, normalizedPressure) != RtBridge.LI_ERR_UNSUPPORTED;
     }
 
     public boolean tryHandleTouchpadEvent(MotionEvent event) {
@@ -1718,21 +1718,21 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                touchType = MoonBridge.LI_TOUCH_EVENT_DOWN;
+                touchType = RtBridge.LI_TOUCH_EVENT_DOWN;
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
                 if ((event.getFlags() & MotionEvent.FLAG_CANCELED) != 0) {
-                    touchType = MoonBridge.LI_TOUCH_EVENT_CANCEL;
+                    touchType = RtBridge.LI_TOUCH_EVENT_CANCEL;
                 }
                 else {
-                    touchType = MoonBridge.LI_TOUCH_EVENT_UP;
+                    touchType = RtBridge.LI_TOUCH_EVENT_UP;
                 }
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                touchType = MoonBridge.LI_TOUCH_EVENT_MOVE;
+                touchType = RtBridge.LI_TOUCH_EVENT_MOVE;
                 break;
 
             case MotionEvent.ACTION_CANCEL:
@@ -1740,7 +1740,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 // rather than CANCEL. For a single pointer cancellation, that's indicated via
                 // FLAG_CANCELED on a ACTION_POINTER_UP.
                 // https://developer.android.com/develop/ui/views/touch-and-input/gestures/multi
-                touchType = MoonBridge.LI_TOUCH_EVENT_CANCEL_ALL;
+                touchType = RtBridge.LI_TOUCH_EVENT_CANCEL_ALL;
                 break;
 
             case MotionEvent.ACTION_BUTTON_PRESS:
@@ -1789,8 +1789,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         }
         else if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
             // Cancel impacts all active pointers
-            return conn.sendControllerTouchEvent((byte)context.controllerNumber, MoonBridge.LI_TOUCH_EVENT_CANCEL_ALL,
-                    0, 0, 0, 0) != MoonBridge.LI_ERR_UNSUPPORTED;
+            return conn.sendControllerTouchEvent((byte)context.controllerNumber, RtBridge.LI_TOUCH_EVENT_CANCEL_ALL,
+                    0, 0, 0, 0) != RtBridge.LI_ERR_UNSUPPORTED;
         }
         else {
             // Down and Up events impact the action index pointer
@@ -2201,7 +2201,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                     }
                 }
 
-                if (motionType == MoonBridge.LI_MOTION_TYPE_GYRO) {
+                if (motionType == RtBridge.LI_MOTION_TYPE_GYRO) {
                     // Convert from rad/s to deg/s
                     conn.sendControllerMotionEvent((byte) controllerNumber,
                             motionType,
@@ -2241,10 +2241,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 // sensors disappear and reappear. By storing the desired report rate, we can
                 // reapply the desired motion sensor configuration after they reappear.
                 switch (motionType) {
-                    case MoonBridge.LI_MOTION_TYPE_ACCEL:
+                    case RtBridge.LI_MOTION_TYPE_ACCEL:
                         deviceContext.accelReportRateHz = reportRateHz;
                         break;
-                    case MoonBridge.LI_MOTION_TYPE_GYRO:
+                    case RtBridge.LI_MOTION_TYPE_GYRO:
                         deviceContext.gyroReportRateHz = reportRateHz;
                         break;
                 }
@@ -2257,7 +2257,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 }
 
                 switch (motionType) {
-                    case MoonBridge.LI_MOTION_TYPE_ACCEL:
+                    case RtBridge.LI_MOTION_TYPE_ACCEL:
                         if (deviceContext.accelListener != null) {
                             sm.unregisterListener(deviceContext.accelListener);
                             deviceContext.accelListener = null;
@@ -2270,7 +2270,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                             sm.registerListener(deviceContext.accelListener, accelSensor, 1000000 / reportRateHz);
                         }
                         break;
-                    case MoonBridge.LI_MOTION_TYPE_GYRO:
+                    case RtBridge.LI_MOTION_TYPE_GYRO:
                         if (deviceContext.gyroListener != null) {
                             sm.unregisterListener(deviceContext.gyroListener);
                             deviceContext.gyroListener = null;
@@ -2847,7 +2847,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
     public void deviceRemoved(AbstractController controller) {
         UsbDeviceContext context = usbDeviceContexts.get(controller.getControllerId());
         if (context != null) {
-            LimeLog.info("Removed controller: "+controller.getControllerId());
+            RtLog.info("Removed controller: "+controller.getControllerId());
             releaseControllerNumber(context);
             context.destroy();
             usbDeviceContexts.remove(controller.getControllerId());
@@ -3021,10 +3021,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             public void run() {
                 // Turn back on any sensors that should be reporting but are currently unregistered
                 if (accelReportRateHz != 0 && accelListener == null) {
-                    handleSetMotionEventState(controllerNumber, MoonBridge.LI_MOTION_TYPE_ACCEL, accelReportRateHz);
+                    handleSetMotionEventState(controllerNumber, RtBridge.LI_MOTION_TYPE_ACCEL, accelReportRateHz);
                 }
                 if (gyroReportRateHz != 0 && gyroListener == null) {
-                    handleSetMotionEventState(controllerNumber, MoonBridge.LI_MOTION_TYPE_GYRO, gyroReportRateHz);
+                    handleSetMotionEventState(controllerNumber, RtBridge.LI_MOTION_TYPE_GYRO, gyroReportRateHz);
                 }
             }
         };
@@ -3063,17 +3063,17 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             byte type;
             switch (inputDevice.getVendorId()) {
                 case 0x045e: // Microsoft
-                    type = MoonBridge.LI_CTYPE_XBOX;
+                    type = RtBridge.LI_CTYPE_XBOX;
                     break;
                 case 0x054c: // Sony
-                    type = MoonBridge.LI_CTYPE_PS;
+                    type = RtBridge.LI_CTYPE_PS;
                     break;
                 case 0x057e: // Nintendo
-                    type = MoonBridge.LI_CTYPE_NINTENDO;
+                    type = RtBridge.LI_CTYPE_NINTENDO;
                     break;
                 default:
                     // Consult SDL's controller type list to see if it knows
-                    type = MoonBridge.guessControllerType(inputDevice.getVendorId(), inputDevice.getProductId());
+                    type = RtBridge.guessControllerType(inputDevice.getVendorId(), inputDevice.getProductId());
                     break;
             }
 
@@ -3108,10 +3108,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             // Most of the advanced InputDevice capabilities came in Android S
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (quadVibrators) {
-                    capabilities |= MoonBridge.LI_CCAP_RUMBLE | MoonBridge.LI_CCAP_TRIGGER_RUMBLE;
+                    capabilities |= RtBridge.LI_CCAP_RUMBLE | RtBridge.LI_CCAP_TRIGGER_RUMBLE;
                 }
                 else if (vibratorManager != null || vibrator != null) {
-                    capabilities |= MoonBridge.LI_CCAP_RUMBLE;
+                    capabilities |= RtBridge.LI_CCAP_RUMBLE;
                 }
 
                 // Calling InputDevice.getBatteryState() to see if a battery is present
@@ -3120,35 +3120,35 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 // external gamepad devices on Android S. If it turns out that no battery
                 // is actually present, we'll just report unknown battery state to the host.
                 if (external) {
-                    capabilities |= MoonBridge.LI_CCAP_BATTERY_STATE;
+                    capabilities |= RtBridge.LI_CCAP_BATTERY_STATE;
                 }
 
                 // Light.hasRgbControl() was totally broken prior to Android 14.
                 // It always returned true because LIGHT_CAPABILITY_RGB was defined as 0,
                 // so we will just guess RGB is supported if it's a PlayStation controller.
-                if (hasRgbLed && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE || type == MoonBridge.LI_CTYPE_PS)) {
-                    capabilities |= MoonBridge.LI_CCAP_RGB_LED;
+                if (hasRgbLed && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE || type == RtBridge.LI_CTYPE_PS)) {
+                    capabilities |= RtBridge.LI_CCAP_RGB_LED;
                 }
             }
 
             // Report analog triggers if we have at least one trigger axis
             if (leftTriggerAxis != -1 || rightTriggerAxis != -1) {
-                capabilities |= MoonBridge.LI_CCAP_ANALOG_TRIGGERS;
+                capabilities |= RtBridge.LI_CCAP_ANALOG_TRIGGERS;
             }
 
             // Report sensors if the input device has them or we're using built-in sensors for a built-in controller
             if (sensorManager != null && sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-                capabilities |= MoonBridge.LI_CCAP_ACCEL;
+                capabilities |= RtBridge.LI_CCAP_ACCEL;
             }
             if (sensorManager != null && sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null) {
-                capabilities |= MoonBridge.LI_CCAP_GYRO;
+                capabilities |= RtBridge.LI_CCAP_GYRO;
             }
 
             byte reportedType;
-            if (type != MoonBridge.LI_CTYPE_PS && sensorManager != null) {
+            if (type != RtBridge.LI_CTYPE_PS && sensorManager != null) {
                 // Override the detected controller type if we're emulating motion sensors on an Xbox controller
                 Toast.makeText(activityContext, activityContext.getResources().getText(R.string.toast_controller_type_changed), Toast.LENGTH_LONG).show();
-                reportedType = MoonBridge.LI_CTYPE_UNKNOWN;
+                reportedType = RtBridge.LI_CTYPE_UNKNOWN;
 
                 // Remember that we should enable the clickpad emulation combo (Select+LB) for this device
                 needsClickpadEmulation = true;
@@ -3160,16 +3160,16 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
             // We can perform basic rumble with any vibrator
             if (vibrator != null) {
-                capabilities |= MoonBridge.LI_CCAP_RUMBLE;
+                capabilities |= RtBridge.LI_CCAP_RUMBLE;
             }
 
             // Shield controllers use special APIs for rumble and battery state
             if (sceManager.isRecognizedDevice(inputDevice)) {
-                capabilities |= MoonBridge.LI_CCAP_RUMBLE | MoonBridge.LI_CCAP_BATTERY_STATE;
+                capabilities |= RtBridge.LI_CCAP_RUMBLE | RtBridge.LI_CCAP_BATTERY_STATE;
             }
 
             if ((inputDevice.getSources() & InputDevice.SOURCE_TOUCHPAD) == InputDevice.SOURCE_TOUCHPAD) {
-                capabilities |= MoonBridge.LI_CCAP_TOUCHPAD;
+                capabilities |= RtBridge.LI_CCAP_TOUCHPAD;
 
                 // Use the platform API or internal heuristics to determine if this has a clickpad
                 if (hasButtonUnderTouchpad(inputDevice, type)) {
@@ -3228,7 +3228,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 gyroListener = null;
 
                 // Send a gyro event to ensure the virtual controller is stationary
-                conn.sendControllerMotionEvent((byte) controllerNumber, MoonBridge.LI_MOTION_TYPE_GYRO, 0.f, 0.f, 0.f);
+                conn.sendControllerMotionEvent((byte) controllerNumber, RtBridge.LI_MOTION_TYPE_GYRO, 0.f, 0.f, 0.f);
             }
             if (accelListener != null) {
                 sensorManager.unregisterListener(accelListener);

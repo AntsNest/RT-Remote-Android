@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.nvstream.http.ComputerDetails;
 import kr.co.antsnest.rtremote.nvstream.http.NvHTTP;
 

@@ -340,13 +340,13 @@ public class AppView extends Activity implements AdapterFragmentCallbacks {
             lastRawApplist = CacheHelper.readInputStreamToString(CacheHelper.openCacheFileForInput(getCacheDir(), "applist", uuidString));
             List<NvApp> applist = NvHTTP.getAppListByReader(new StringReader(lastRawApplist));
             updateUiWithAppList(applist);
-            LimeLog.info("Loaded applist from cache");
+            RtLog.info("Loaded applist from cache");
         } catch (IOException | XmlPullParserException e) {
             if (lastRawApplist != null) {
-                LimeLog.warning("Saved applist corrupted: "+lastRawApplist);
+                RtLog.warning("Saved applist corrupted: "+lastRawApplist);
                 e.printStackTrace();
             }
-            LimeLog.info("Loading applist from the network");
+            RtLog.info("Loading applist from the network");
             // We'll need to load from the network
             loadAppsBlocking();
         }

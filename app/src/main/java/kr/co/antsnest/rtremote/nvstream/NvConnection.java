@@ -28,28 +28,28 @@ import javax.crypto.SecretKey;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.nvstream.av.audio.AudioRenderer;
 import kr.co.antsnest.rtremote.nvstream.av.video.VideoDecoderRenderer;
 import kr.co.antsnest.rtremote.nvstream.http.ComputerDetails;
 import kr.co.antsnest.rtremote.nvstream.http.HostHttpResponseException;
-import kr.co.antsnest.rtremote.nvstream.http.LimelightCryptoProvider;
+import kr.co.antsnest.rtremote.nvstream.http.RtCryptoProvider;
 import kr.co.antsnest.rtremote.nvstream.http.NvApp;
 import kr.co.antsnest.rtremote.nvstream.http.NvHTTP;
 import kr.co.antsnest.rtremote.nvstream.http.PairingManager;
 import kr.co.antsnest.rtremote.nvstream.input.MouseButtonPacket;
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 
 public class NvConnection {
     // Context parameters
-    private LimelightCryptoProvider cryptoProvider;
+    private RtCryptoProvider cryptoProvider;
     private String uniqueId;
     private ConnectionContext context;
     private static Semaphore connectionAllowed = new Semaphore(1);
     private final boolean isMonkey;
     private final Context appContext;
 
-    public NvConnection(Context appContext, ComputerDetails.AddressTuple host, int httpsPort, String uniqueId, StreamConfiguration config, LimelightCryptoProvider cryptoProvider, X509Certificate serverCert)
+    public NvConnection(Context appContext, ComputerDetails.AddressTuple host, int httpsPort, String uniqueId, StreamConfiguration config, RtCryptoProvider cryptoProvider, X509Certificate serverCert)
     {
         this.appContext = appContext;
         this.cryptoProvider = cryptoProvider;
@@ -88,13 +88,13 @@ public class NvConnection {
 
     public void stop() {
         // Interrupt any pending connection. This is thread-safe.
-        MoonBridge.interruptConnection();
+        RtBridge.interruptConnection();
 
         // Moonlight-core is not thread-safe with respect to connection start and stop, so
         // we must not invoke that functionality in parallel.
-        synchronized (MoonBridge.class) {
-            MoonBridge.stopConnection();
-            MoonBridge.cleanupBridge();
+        synchronized (RtBridge.class) {
+            RtBridge.stopConnection();
+            RtBridge.cleanupBridge();
         }
 
         // Now a pending connection can be processed
@@ -244,7 +244,7 @@ public class NvConnection {
 
         context.serverCodecModeSupport = (int)h.getServerCodecModeSupport(serverInfo);
 
-        context.negotiatedHdr = (context.streamConfig.getSupportedVideoFormats() & MoonBridge.VIDEO_FORMAT_MASK_10BIT) != 0;
+        context.negotiatedHdr = (context.streamConfig.getSupportedVideoFormats() & RtBridge.VIDEO_FORMAT_MASK_10BIT) != 0;
         if ((context.serverCodecModeSupport & 0x20200) == 0 && context.negotiatedHdr) {
             context.connListener.displayTransientMessage("Your PC GPU does not support streaming HDR. The stream will be SDR.");
             context.negotiatedHdr = false;
@@ -261,7 +261,7 @@ public class NvConnection {
             return false;
         }
         else if ((context.streamConfig.getWidth() > 4096 || context.streamConfig.getHeight() > 4096) &&
-                (context.streamConfig.getSupportedVideoFormats() & ~MoonBridge.VIDEO_FORMAT_MASK_H264) == 0) {
+                (context.streamConfig.getSupportedVideoFormats() & ~RtBridge.VIDEO_FORMAT_MASK_H264) == 0) {
             context.connListener.displayMessage("Your streaming device must support HEVC or AV1 to stream at resolutions above 4K.");
             return false;
         }
@@ -299,7 +299,7 @@ public class NvConnection {
         
         // If the client did not provide an exact app ID, do a lookup with the applist
         if (!context.streamConfig.getApp().isInitialized()) {
-            LimeLog.info("Using deprecated app lookup method - Please specify an app ID in your StreamConfiguration instead");
+            RtLog.info("Using deprecated app lookup method - Please specify an app ID in your StreamConfiguration instead");
             app = h.getAppByName(context.streamConfig.getApp().getAppName());
             if (app == null) {
                 context.connListener.displayMessage("The app " + context.streamConfig.getApp().getAppName() + " is not in GFE app list");
@@ -336,7 +336,7 @@ public class NvConnection {
                 }
             }
             
-            LimeLog.info("Resumed existing game session");
+            RtLog.info("Resumed existing game session");
             return true;
         }
         else {
@@ -374,7 +374,7 @@ public class NvConnection {
             return false;
         }
         
-        LimeLog.info("Launched new game session");
+        RtLog.info("Launched new game session");
         
         return true;
     }
@@ -404,7 +404,7 @@ public class NvConnection {
                 } catch (XmlPullParserException | IOException e) {
                     e.printStackTrace();
                     context.connListener.displayMessage(e.getMessage());
-                    context.connListener.stageFailed(appName, MoonBridge.ML_PORT_FLAG_TCP_47984 | MoonBridge.ML_PORT_FLAG_TCP_47989, 0);
+                    context.connListener.stageFailed(appName, RtBridge.ML_PORT_FLAG_TCP_47984 | RtBridge.ML_PORT_FLAG_TCP_47989, 0);
                     return;
                 }
 
@@ -423,9 +423,9 @@ public class NvConnection {
 
                 // Moonlight-core is not thread-safe with respect to connection start and stop, so
                 // we must not invoke that functionality in parallel.
-                synchronized (MoonBridge.class) {
-                    MoonBridge.setupBridge(videoDecoderRenderer, audioRenderer, connectionListener);
-                    int ret = MoonBridge.startConnection(context.serverAddress.address,
+                synchronized (RtBridge.class) {
+                    RtBridge.setupBridge(videoDecoderRenderer, audioRenderer, connectionListener);
+                    int ret = RtBridge.startConnection(context.serverAddress.address,
                             context.serverAppVersion, context.serverGfeVersion, context.rtspSessionUrl,
                             context.serverCodecModeSupport,
                             context.negotiatedWidth, context.negotiatedHeight,
@@ -453,35 +453,35 @@ public class NvConnection {
     public void sendMouseMove(final short deltaX, final short deltaY)
     {
         if (!isMonkey) {
-            MoonBridge.sendMouseMove(deltaX, deltaY);
+            RtBridge.sendMouseMove(deltaX, deltaY);
         }
     }
 
     public void sendMousePosition(short x, short y, short referenceWidth, short referenceHeight)
     {
         if (!isMonkey) {
-            MoonBridge.sendMousePosition(x, y, referenceWidth, referenceHeight);
+            RtBridge.sendMousePosition(x, y, referenceWidth, referenceHeight);
         }
     }
 
     public void sendMouseMoveAsMousePosition(short deltaX, short deltaY, short referenceWidth, short referenceHeight)
     {
         if (!isMonkey) {
-            MoonBridge.sendMouseMoveAsMousePosition(deltaX, deltaY, referenceWidth, referenceHeight);
+            RtBridge.sendMouseMoveAsMousePosition(deltaX, deltaY, referenceWidth, referenceHeight);
         }
     }
 
     public void sendMouseButtonDown(final byte mouseButton)
     {
         if (!isMonkey) {
-            MoonBridge.sendMouseButton(MouseButtonPacket.PRESS_EVENT, mouseButton);
+            RtBridge.sendMouseButton(MouseButtonPacket.PRESS_EVENT, mouseButton);
         }
     }
     
     public void sendMouseButtonUp(final byte mouseButton)
     {
         if (!isMonkey) {
-            MoonBridge.sendMouseButton(MouseButtonPacket.RELEASE_EVENT, mouseButton);
+            RtBridge.sendMouseButton(MouseButtonPacket.RELEASE_EVENT, mouseButton);
         }
     }
     
@@ -492,49 +492,49 @@ public class NvConnection {
             final short rightStickX, final short rightStickY)
     {
         if (!isMonkey) {
-            MoonBridge.sendMultiControllerInput(controllerNumber, activeGamepadMask, buttonFlags,
+            RtBridge.sendMultiControllerInput(controllerNumber, activeGamepadMask, buttonFlags,
                     leftTrigger, rightTrigger, leftStickX, leftStickY, rightStickX, rightStickY);
         }
     }
 
     public void sendKeyboardInput(final short keyMap, final byte keyDirection, final byte modifier, final byte flags) {
         if (!isMonkey) {
-            MoonBridge.sendKeyboardInput(keyMap, keyDirection, modifier, flags);
+            RtBridge.sendKeyboardInput(keyMap, keyDirection, modifier, flags);
         }
     }
     
     public void sendMouseScroll(final byte scrollClicks) {
         if (!isMonkey) {
-            MoonBridge.sendMouseHighResScroll((short)(scrollClicks * 120)); // WHEEL_DELTA
+            RtBridge.sendMouseHighResScroll((short)(scrollClicks * 120)); // WHEEL_DELTA
         }
     }
 
     public void sendMouseHScroll(final byte scrollClicks) {
         if (!isMonkey) {
-            MoonBridge.sendMouseHighResHScroll((short)(scrollClicks * 120)); // WHEEL_DELTA
+            RtBridge.sendMouseHighResHScroll((short)(scrollClicks * 120)); // WHEEL_DELTA
         }
     }
 
     public void sendMouseHighResScroll(final short scrollAmount) {
         if (!isMonkey) {
-            MoonBridge.sendMouseHighResScroll(scrollAmount);
+            RtBridge.sendMouseHighResScroll(scrollAmount);
         }
     }
 
     public void sendMouseHighResHScroll(final short scrollAmount) {
         if (!isMonkey) {
-            MoonBridge.sendMouseHighResHScroll(scrollAmount);
+            RtBridge.sendMouseHighResHScroll(scrollAmount);
         }
     }
 
     public int sendTouchEvent(byte eventType, int pointerId, float x, float y, float pressureOrDistance,
                               float contactAreaMajor, float contactAreaMinor, short rotation) {
         if (!isMonkey) {
-            return MoonBridge.sendTouchEvent(eventType, pointerId, x, y, pressureOrDistance,
+            return RtBridge.sendTouchEvent(eventType, pointerId, x, y, pressureOrDistance,
                     contactAreaMajor, contactAreaMinor, rotation);
         }
         else {
-            return MoonBridge.LI_ERR_UNSUPPORTED;
+            return RtBridge.LI_ERR_UNSUPPORTED;
         }
     }
 
@@ -542,50 +542,50 @@ public class NvConnection {
                             float pressureOrDistance, float contactAreaMajor, float contactAreaMinor,
                             short rotation, byte tilt) {
         if (!isMonkey) {
-            return MoonBridge.sendPenEvent(eventType, toolType, penButtons, x, y, pressureOrDistance,
+            return RtBridge.sendPenEvent(eventType, toolType, penButtons, x, y, pressureOrDistance,
                     contactAreaMajor, contactAreaMinor, rotation, tilt);
         }
         else {
-            return MoonBridge.LI_ERR_UNSUPPORTED;
+            return RtBridge.LI_ERR_UNSUPPORTED;
         }
     }
 
     public int sendControllerArrivalEvent(byte controllerNumber, short activeGamepadMask, byte type,
                                           int supportedButtonFlags, short capabilities) {
-        return MoonBridge.sendControllerArrivalEvent(controllerNumber, activeGamepadMask, type, supportedButtonFlags, capabilities);
+        return RtBridge.sendControllerArrivalEvent(controllerNumber, activeGamepadMask, type, supportedButtonFlags, capabilities);
     }
 
     public int sendControllerTouchEvent(byte controllerNumber, byte eventType, int pointerId,
                                         float x, float y, float pressure) {
         if (!isMonkey) {
-            return MoonBridge.sendControllerTouchEvent(controllerNumber, eventType, pointerId, x, y, pressure);
+            return RtBridge.sendControllerTouchEvent(controllerNumber, eventType, pointerId, x, y, pressure);
         }
         else {
-            return MoonBridge.LI_ERR_UNSUPPORTED;
+            return RtBridge.LI_ERR_UNSUPPORTED;
         }
     }
 
     public int sendControllerMotionEvent(byte controllerNumber, byte motionType,
                                          float x, float y, float z) {
         if (!isMonkey) {
-            return MoonBridge.sendControllerMotionEvent(controllerNumber, motionType, x, y, z);
+            return RtBridge.sendControllerMotionEvent(controllerNumber, motionType, x, y, z);
         }
         else {
-            return MoonBridge.LI_ERR_UNSUPPORTED;
+            return RtBridge.LI_ERR_UNSUPPORTED;
         }
     }
 
     public void sendControllerBatteryEvent(byte controllerNumber, byte batteryState, byte batteryPercentage) {
-        MoonBridge.sendControllerBatteryEvent(controllerNumber, batteryState, batteryPercentage);
+        RtBridge.sendControllerBatteryEvent(controllerNumber, batteryState, batteryPercentage);
     }
 
     public void sendUtf8Text(final String text) {
         if (!isMonkey) {
-            MoonBridge.sendUtf8Text(text);
+            RtBridge.sendUtf8Text(text);
         }
     }
 
     public static String findExternalAddressForMdns(String stunHostname, int stunPort) {
-        return MoonBridge.findExternalAddressIP4(stunHostname, stunPort);
+        return RtBridge.findExternalAddressIP4(stunHostname, stunPort);
     }
 }

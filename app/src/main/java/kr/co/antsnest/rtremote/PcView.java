@@ -246,7 +246,7 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
                     glPrefs.savedFingerprint = Build.FINGERPRINT;
                     glPrefs.writePreferences();
 
-                    LimeLog.info("Fetched GL Renderer: " + glPrefs.glRenderer);
+                    RtLog.info("Fetched GL Renderer: " + glPrefs.glRenderer);
 
                     runOnUiThread(new Runnable() {
                         @Override
@@ -267,7 +267,7 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
             setContentView(surfaceView);
         }
         else {
-            LimeLog.info("Cached GL Renderer: " + glPrefs.glRenderer);
+            RtLog.info("Cached GL Renderer: " + glPrefs.glRenderer);
             completeOnCreate();
         }
     }
@@ -685,7 +685,7 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
                         }
                     }
                 } catch (Exception e) {
-                    LimeLog.warning("바탕화면 항목을 못 찾음: " + e.getMessage());
+                    RtLog.warning("바탕화면 항목을 못 찾음: " + e.getMessage());
                 }
 
                 final NvApp found = desktop;
@@ -734,7 +734,7 @@ public class PcView extends Activity implements AdapterFragmentCallbacks {
 
             case DELETE_ID:
                 if (ActivityManager.isUserAMonkey()) {
-                    LimeLog.info("Ignoring delete PC request from monkey");
+                    RtLog.info("Ignoring delete PC request from monkey");
                     return true;
                 }
                 UiHelper.displayDeletePcConfirmationDialog(this, computer.details, new Runnable() {

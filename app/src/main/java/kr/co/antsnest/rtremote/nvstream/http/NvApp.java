@@ -1,6 +1,6 @@
 package kr.co.antsnest.rtremote.nvstream.http;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 
 public class NvApp {
     private String appName = "";
@@ -30,7 +30,7 @@ public class NvApp {
             this.appId = Integer.parseInt(appId);
             this.initialized = true;
         } catch (NumberFormatException e) {
-            LimeLog.warning("Malformed app ID: "+appId);
+            RtLog.warning("Malformed app ID: "+appId);
         }
     }
     

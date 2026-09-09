@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 
 public class EvdevReader {
     private static void readAll(InputStream in, ByteBuffer bb) throws IOException {
@@ -36,7 +36,7 @@ public class EvdevReader {
         packetLength = bb.getInt();
 
         if (packetLength < EvdevEvent.EVDEV_MIN_EVENT_SIZE) {
-            LimeLog.warning("Short read: "+packetLength);
+            RtLog.warning("Short read: "+packetLength);
             return null;
         }
 

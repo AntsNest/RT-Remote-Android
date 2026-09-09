@@ -11,29 +11,29 @@
 #include "controller_list.h"
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendMouseMove(JNIEnv *env, jclass clazz, jshort deltaX, jshort deltaY) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseMove(JNIEnv *env, jclass clazz, jshort deltaX, jshort deltaY) {
     LiSendMouseMoveEvent(deltaX, deltaY);
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendMousePosition(JNIEnv *env, jclass clazz,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMousePosition(JNIEnv *env, jclass clazz,
         jshort x, jshort y, jshort referenceWidth, jshort referenceHeight) {
     LiSendMousePositionEvent(x, y, referenceWidth, referenceHeight);
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendMouseMoveAsMousePosition(JNIEnv *env, jclass clazz,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseMoveAsMousePosition(JNIEnv *env, jclass clazz,
         jshort deltaX, jshort deltaY, jshort referenceWidth, jshort referenceHeight) {
     LiSendMouseMoveAsMousePositionEvent(deltaX, deltaY, referenceWidth, referenceHeight);
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendMouseButton(JNIEnv *env, jclass clazz, jbyte buttonEvent, jbyte mouseButton) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseButton(JNIEnv *env, jclass clazz, jbyte buttonEvent, jbyte mouseButton) {
     LiSendMouseButtonEvent(buttonEvent, mouseButton);
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendMultiControllerInput(JNIEnv *env, jclass clazz, jshort controllerNumber,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMultiControllerInput(JNIEnv *env, jclass clazz, jshort controllerNumber,
                                                            jshort activeGamepadMask, jint buttonFlags,
                                                            jbyte leftTrigger, jbyte rightTrigger,
                                                            jshort leftStickX, jshort leftStickY,
@@ -43,7 +43,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendMultiControllerInput(JN
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendTouchEvent(JNIEnv *env, jclass clazz,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendTouchEvent(JNIEnv *env, jclass clazz,
                                                           jbyte eventType, jint pointerId,
                                                           jfloat x, jfloat y, jfloat pressureOrDistance,
                                                           jfloat contactAreaMajor, jfloat contactAreaMinor,
@@ -53,7 +53,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendTouchEvent(JNIEnv *env,
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendPenEvent(JNIEnv *env, jclass clazz, jbyte eventType,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendPenEvent(JNIEnv *env, jclass clazz, jbyte eventType,
                                                         jbyte toolType, jbyte penButtons,
                                                         jfloat x, jfloat y, jfloat pressureOrDistance,
                                                         jfloat contactAreaMajor, jfloat contactAreaMinor,
@@ -63,7 +63,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendPenEvent(JNIEnv *env, j
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendControllerArrivalEvent(JNIEnv *env, jclass clazz,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendControllerArrivalEvent(JNIEnv *env, jclass clazz,
                                                                       jbyte controllerNumber,
                                                                       jshort activeGamepadMask,
                                                                       jbyte type,
@@ -73,7 +73,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendControllerArrivalEvent(
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendControllerTouchEvent(JNIEnv *env, jclass clazz,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendControllerTouchEvent(JNIEnv *env, jclass clazz,
                                                                     jbyte controllerNumber,
                                                                     jbyte eventType,
                                                                     jint pointerId, jfloat x,
@@ -82,7 +82,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendControllerTouchEvent(JN
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendControllerMotionEvent(JNIEnv *env, jclass clazz,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendControllerMotionEvent(JNIEnv *env, jclass clazz,
                                                                      jbyte controllerNumber,
                                                                      jbyte motionType, jfloat x,
                                                                      jfloat y, jfloat z) {
@@ -90,7 +90,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendControllerMotionEvent(J
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendControllerBatteryEvent(JNIEnv *env, jclass clazz,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendControllerBatteryEvent(JNIEnv *env, jclass clazz,
                                                                       jbyte controllerNumber,
                                                                       jbyte batteryState,
                                                                       jbyte batteryPercentage) {
@@ -98,44 +98,44 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendControllerBatteryEvent(
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendKeyboardInput(JNIEnv *env, jclass clazz, jshort keyCode, jbyte keyAction, jbyte modifiers, jbyte flags) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendKeyboardInput(JNIEnv *env, jclass clazz, jshort keyCode, jbyte keyAction, jbyte modifiers, jbyte flags) {
     LiSendKeyboardEvent2(keyCode, keyAction, modifiers, flags);
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendMouseHighResScroll(JNIEnv *env, jclass clazz, jshort scrollAmount) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseHighResScroll(JNIEnv *env, jclass clazz, jshort scrollAmount) {
     LiSendHighResScrollEvent(scrollAmount);
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendMouseHighResHScroll(JNIEnv *env, jclass clazz, jshort scrollAmount) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseHighResHScroll(JNIEnv *env, jclass clazz, jshort scrollAmount) {
     LiSendHighResHScrollEvent(scrollAmount);
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_sendUtf8Text(JNIEnv *env, jclass clazz, jstring text) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendUtf8Text(JNIEnv *env, jclass clazz, jstring text) {
     const char* utf8Text = (*env)->GetStringUTFChars(env, text, NULL);
     LiSendUtf8TextEvent(utf8Text, strlen(utf8Text));
     (*env)->ReleaseStringUTFChars(env, text, utf8Text);
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_stopConnection(JNIEnv *env, jclass clazz) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_stopConnection(JNIEnv *env, jclass clazz) {
     LiStopConnection();
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_interruptConnection(JNIEnv *env, jclass clazz) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_interruptConnection(JNIEnv *env, jclass clazz) {
     LiInterruptConnection();
 }
 
 JNIEXPORT jstring JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_getStageName(JNIEnv *env, jclass clazz, jint stage) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getStageName(JNIEnv *env, jclass clazz, jint stage) {
     return (*env)->NewStringUTF(env, LiGetStageName(stage));
 }
 
 JNIEXPORT jstring JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_findExternalAddressIP4(JNIEnv *env, jclass clazz, jstring stunHostName, jint stunPort) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_findExternalAddressIP4(JNIEnv *env, jclass clazz, jstring stunHostName, jint stunPort) {
     int err;
     struct in_addr wanAddr;
     const char* stunHostNameStr = (*env)->GetStringUTFChars(env, stunHostName, NULL);
@@ -159,17 +159,17 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_findExternalAddressIP4(JNIE
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_getPendingAudioDuration(JNIEnv *env, jclass clazz) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getPendingAudioDuration(JNIEnv *env, jclass clazz) {
     return LiGetPendingAudioDuration();
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_getPendingVideoFrames(JNIEnv *env, jclass clazz) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getPendingVideoFrames(JNIEnv *env, jclass clazz) {
     return LiGetPendingVideoFrames();
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_testClientConnectivity(JNIEnv *env, jclass clazz, jstring testServerHostName, jint referencePort, jint testFlags) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_testClientConnectivity(JNIEnv *env, jclass clazz, jstring testServerHostName, jint referencePort, jint testFlags) {
     int ret;
     const char* testServerHostNameStr = (*env)->GetStringUTFChars(env, testServerHostName, NULL);
 
@@ -181,17 +181,17 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_testClientConnectivity(JNIE
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_getPortFlagsFromStage(JNIEnv *env, jclass clazz, jint stage) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getPortFlagsFromStage(JNIEnv *env, jclass clazz, jint stage) {
     return LiGetPortFlagsFromStage(stage);
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_getPortFlagsFromTerminationErrorCode(JNIEnv *env, jclass clazz, jint errorCode) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getPortFlagsFromTerminationErrorCode(JNIEnv *env, jclass clazz, jint errorCode) {
     return LiGetPortFlagsFromTerminationErrorCode(errorCode);
 }
 
 JNIEXPORT jstring JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_stringifyPortFlags(JNIEnv *env, jclass clazz, jint portFlags, jstring separator) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_stringifyPortFlags(JNIEnv *env, jclass clazz, jint portFlags, jstring separator) {
     const char* separatorStr = (*env)->GetStringUTFChars(env, separator, NULL);
     char outputBuffer[512];
 
@@ -202,7 +202,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_stringifyPortFlags(JNIEnv *
 }
 
 JNIEXPORT jlong JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_getEstimatedRttInfo(JNIEnv *env, jclass clazz) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getEstimatedRttInfo(JNIEnv *env, jclass clazz) {
     uint32_t rtt, variance;
 
     if (!LiGetEstimatedRttInfo(&rtt, &variance)) {
@@ -213,12 +213,12 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_getEstimatedRttInfo(JNIEnv 
 }
 
 JNIEXPORT jstring JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_getLaunchUrlQueryParameters(JNIEnv *env, jclass clazz) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getLaunchUrlQueryParameters(JNIEnv *env, jclass clazz) {
     return (*env)->NewStringUTF(env, LiGetLaunchUrlQueryParameters());
 }
 
 JNIEXPORT jbyte JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_guessControllerType(JNIEnv *env, jclass clazz, jint vendorId, jint productId) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_guessControllerType(JNIEnv *env, jclass clazz, jint vendorId, jint productId) {
     unsigned int unDeviceID = MAKE_CONTROLLER_ID(vendorId, productId);
     for (int i = 0; i < sizeof(arrControllers) / sizeof(arrControllers[0]); i++) {
         if (unDeviceID == arrControllers[i].m_unDeviceID) {
@@ -249,13 +249,13 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_guessControllerType(JNIEnv 
 }
 
 JNIEXPORT jboolean JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_guessControllerHasPaddles(JNIEnv *env, jclass clazz, jint vendorId, jint productId) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_guessControllerHasPaddles(JNIEnv *env, jclass clazz, jint vendorId, jint productId) {
     // Xbox Elite and DualSense Edge controllers have paddles
     return SDL_IsJoystickXboxOneElite(vendorId, productId) || SDL_IsJoystickDualSenseEdge(vendorId, productId);
 }
 
 JNIEXPORT jboolean JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_guessControllerHasShareButton(JNIEnv *env, jclass clazz, jint vendorId, jint productId) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_guessControllerHasShareButton(JNIEnv *env, jclass clazz, jint vendorId, jint productId) {
     // Xbox Elite and DualSense Edge controllers have paddles
     return SDL_IsJoystickXboxSeriesX(vendorId, productId);
 }

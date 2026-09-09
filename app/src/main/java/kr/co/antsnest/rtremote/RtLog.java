@@ -5,8 +5,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.Logger;
 
-public class LimeLog {
-    private static final Logger LOGGER = Logger.getLogger(LimeLog.class.getName());
+public class RtLog {
+    private static final Logger LOGGER = Logger.getLogger(RtLog.class.getName());
 
     public static void info(String msg) {
         LOGGER.info(msg);

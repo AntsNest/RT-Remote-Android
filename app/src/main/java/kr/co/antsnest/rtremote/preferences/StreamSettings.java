@@ -27,7 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.PcView;
 import kr.co.antsnest.rtremote.R;
 import kr.co.antsnest.rtremote.binding.video.MediaCodecHelper;
@@ -437,7 +437,7 @@ public class StreamSettings extends Activity {
                 if (avcDecoder != null) {
                     Range<Integer> avcWidthRange = avcDecoder.getCapabilitiesForType("video/avc").getVideoCapabilities().getSupportedWidths();
 
-                    LimeLog.info("AVC supported width range: "+avcWidthRange.getLower()+" - "+avcWidthRange.getUpper());
+                    RtLog.info("AVC supported width range: "+avcWidthRange.getLower()+" - "+avcWidthRange.getUpper());
 
                     // If 720p is not reported as supported, ignore all results from this API
                     if (avcWidthRange.contains(1280)) {
@@ -456,7 +456,7 @@ public class StreamSettings extends Activity {
                 if (hevcDecoder != null) {
                     Range<Integer> hevcWidthRange = hevcDecoder.getCapabilitiesForType("video/hevc").getVideoCapabilities().getSupportedWidths();
 
-                    LimeLog.info("HEVC supported width range: "+hevcWidthRange.getLower()+" - "+hevcWidthRange.getUpper());
+                    RtLog.info("HEVC supported width range: "+hevcWidthRange.getLower()+" - "+hevcWidthRange.getUpper());
 
                     // If 720p is not reported as supported, ignore all results from this API
                     if (hevcWidthRange.contains(1280)) {
@@ -472,7 +472,7 @@ public class StreamSettings extends Activity {
                     }
                 }
 
-                LimeLog.info("Maximum resolution slot: "+maxSupportedResW);
+                RtLog.info("Maximum resolution slot: "+maxSupportedResW);
 
                 if (maxSupportedResW != 0) {
                     if (maxSupportedResW < 3840) {
@@ -574,7 +574,7 @@ public class StreamSettings extends Activity {
 
             // Remove HDR preference for devices below Nougat
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                LimeLog.info("Excluding HDR toggle based on OS");
+                RtLog.info("Excluding HDR toggle based on OS");
                 PreferenceCategory category =
                         (PreferenceCategory) findPreference("category_advanced_settings");
                 category.removePreference(findPreference("checkbox_enable_hdr"));
@@ -595,13 +595,13 @@ public class StreamSettings extends Activity {
                 }
 
                 if (!foundHdr10) {
-                    LimeLog.info("Excluding HDR toggle based on display capabilities");
+                    RtLog.info("Excluding HDR toggle based on display capabilities");
                     PreferenceCategory category =
                             (PreferenceCategory) findPreference("category_advanced_settings");
                     category.removePreference(findPreference("checkbox_enable_hdr"));
                 }
                 else if (PreferenceConfiguration.isShieldAtvFirmwareWithBrokenHdr()) {
-                    LimeLog.info("Disabling HDR toggle on old broken SHIELD TV firmware");
+                    RtLog.info("Disabling HDR toggle on old broken SHIELD TV firmware");
                     PreferenceCategory category =
                             (PreferenceCategory) findPreference("category_advanced_settings");
                     CheckBoxPreference hdrPref = (CheckBoxPreference) category.findPreference("checkbox_enable_hdr");

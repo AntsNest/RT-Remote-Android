@@ -22,7 +22,7 @@ import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaFormat;
 import android.os.Build;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.preferences.PreferenceConfiguration;
 
 public class MediaCodecHelper {
@@ -270,7 +270,7 @@ public class MediaCodecHelper {
         }
 
         String modelNumber = matcher.group(2);
-        LimeLog.info("Found Adreno GPU: "+modelNumber);
+        RtLog.info("Found Adreno GPU: "+modelNumber);
         return modelNumber;
     }
 
@@ -347,14 +347,14 @@ public class MediaCodecHelper {
                 (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         ConfigurationInfo configInfo = activityManager.getDeviceConfigurationInfo();
         if (configInfo.reqGlEsVersion != ConfigurationInfo.GL_ES_VERSION_UNDEFINED) {
-            LimeLog.info("OpenGL ES version: "+configInfo.reqGlEsVersion);
+            RtLog.info("OpenGL ES version: "+configInfo.reqGlEsVersion);
 
             isLowEndSnapdragon = isLowEndSnapdragonRenderer(glRenderer);
             isAdreno620 = getAdrenoRendererModelNumber(glRenderer) == 620;
 
             // Tegra K1 and later can do reference frame invalidation properly
             if (configInfo.reqGlEsVersion >= 0x30000) {
-                LimeLog.info("Added omx.nvidia/c2.nvidia to reference frame invalidation support list");
+                RtLog.info("Added omx.nvidia/c2.nvidia to reference frame invalidation support list");
                 refFrameInvalidationAvcPrefixes.add("omx.nvidia");
 
                 // Exclude HEVC RFI on Pixel C and Tegra devices prior to Android 11. Misbehaving RFI
@@ -367,7 +367,7 @@ public class MediaCodecHelper {
                 refFrameInvalidationAvcPrefixes.add("c2.nvidia"); // Unconfirmed
                 refFrameInvalidationHevcPrefixes.add("c2.nvidia"); // Unconfirmed
 
-                LimeLog.info("Added omx.qcom/c2.qti to reference frame invalidation support list");
+                RtLog.info("Added omx.qcom/c2.qti to reference frame invalidation support list");
                 refFrameInvalidationAvcPrefixes.add("omx.qcom");
                 refFrameInvalidationHevcPrefixes.add("omx.qcom");
                 refFrameInvalidationAvcPrefixes.add("c2.qti");
@@ -383,7 +383,7 @@ public class MediaCodecHelper {
             // (see comment on isGLES31SnapdragonRenderer).
             //
             if (isGLES31SnapdragonRenderer(glRenderer)) {
-                LimeLog.info("Added omx.qcom/c2.qti to HEVC decoders based on GLES 3.1+ support");
+                RtLog.info("Added omx.qcom/c2.qti to HEVC decoders based on GLES 3.1+ support");
                 whitelistedHevcDecoders.add("omx.qcom");
                 whitelistedHevcDecoders.add("c2.qti");
             }
@@ -397,7 +397,7 @@ public class MediaCodecHelper {
             // Older MediaTek SoCs have issues with HEVC rendering but the newer chips with
             // PowerVR GPUs have good HEVC support.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isPowerVR(glRenderer)) {
-                LimeLog.info("Added omx.mtk to HEVC decoders based on PowerVR GPU");
+                RtLog.info("Added omx.mtk to HEVC decoders based on PowerVR GPU");
                 whitelistedHevcDecoders.add("omx.mtk");
 
                 // This SoC (MT8176 in GPD XD+) supports AVC RFI too, but the maxNumReferenceFrames setting
@@ -405,7 +405,7 @@ public class MediaCodecHelper {
                 // decoder hangs on the newer GE8100, GE8300, and GE8320 GPUs, so we limit it to the
                 // Series6XT GPUs where we know it works.
                 if (glRenderer.contains("GX6")) {
-                    LimeLog.info("Added omx.mtk/c2.mtk to RFI list for HEVC");
+                    RtLog.info("Added omx.mtk/c2.mtk to RFI list for HEVC");
                     refFrameInvalidationHevcPrefixes.add("omx.mtk");
                     refFrameInvalidationHevcPrefixes.add("c2.mtk");
                 }
@@ -436,7 +436,7 @@ public class MediaCodecHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 if (decoderInfo.getCapabilitiesForType(mimeType).isFeatureSupported(CodecCapabilities.FEATURE_LowLatency)) {
-                    LimeLog.info("Low latency decoding mode supported (FEATURE_LowLatency)");
+                    RtLog.info("Low latency decoding mode supported (FEATURE_LowLatency)");
                     return true;
                 }
             } catch (Exception e) {
@@ -460,7 +460,7 @@ public class MediaCodecHelper {
                 for (String supportedOption : testCodec.getSupportedVendorParameters()) {
                     for (String knownLowLatencyOption : knownVendorLowLatencyOptions) {
                         if (supportedOption.equalsIgnoreCase(knownLowLatencyOption)) {
-                            LimeLog.info(decoderName + " supports known low latency option: " + supportedOption);
+                            RtLog.info(decoderName + " supports known low latency option: " + supportedOption);
                             return true;
                         }
                     }
@@ -599,7 +599,7 @@ public class MediaCodecHelper {
         try {
             if (decoderInfo.getCapabilitiesForType(mimeType).
                     isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback)) {
-                LimeLog.info("Decoder supports fused IDR frames (FEATURE_AdaptivePlayback)");
+                RtLog.info("Decoder supports fused IDR frames (FEATURE_AdaptivePlayback)");
                 return true;
             }
         } catch (Exception e) {
@@ -612,7 +612,7 @@ public class MediaCodecHelper {
 
     public static boolean decoderSupportsAdaptivePlayback(MediaCodecInfo decoderInfo, String mimeType) {
         if (isDecoderInList(blacklistedAdaptivePlaybackPrefixes, decoderInfo.getName())) {
-            LimeLog.info("Decoder blacklisted for adaptive playback");
+            RtLog.info("Decoder blacklisted for adaptive playback");
             return false;
         }
 
@@ -621,7 +621,7 @@ public class MediaCodecHelper {
                     isFeatureSupported(CodecCapabilities.FEATURE_AdaptivePlayback))
             {
                 // This will make getCapabilities() return that adaptive playback is supported
-                LimeLog.info("Adaptive playback supported (FEATURE_AdaptivePlayback)");
+                RtLog.info("Adaptive playback supported (FEATURE_AdaptivePlayback)");
                 return true;
             }
         } catch (Exception e) {
@@ -684,7 +684,7 @@ public class MediaCodecHelper {
         // buffering frames.
         if (decoderSupportsAndroidRLowLatency(decoderInfo, "video/hevc") ||
                 decoderSupportsKnownVendorLowLatencyOption(decoderInfo.getName())) {
-            LimeLog.info("Enabling HEVC RFI based on low latency option support");
+            RtLog.info("Enabling HEVC RFI based on low latency option support");
             return true;
         }
 
@@ -695,7 +695,7 @@ public class MediaCodecHelper {
         // We'll use the same heuristics as HEVC for now
         if (decoderSupportsAndroidRLowLatency(decoderInfo, "video/av01") ||
                 decoderSupportsKnownVendorLowLatencyOption(decoderInfo.getName())) {
-            LimeLog.info("Enabling AV1 RFI based on low latency option support");
+            RtLog.info("Enabling AV1 RFI based on low latency option support");
             return true;
         }
 
@@ -710,11 +710,11 @@ public class MediaCodecHelper {
         // OMX.SEC.hevc.sw.dec
         //
         if (decoderInfo.getName().contains("sw")) {
-            LimeLog.info("Disallowing HEVC on software decoder: " + decoderInfo.getName());
+            RtLog.info("Disallowing HEVC on software decoder: " + decoderInfo.getName());
             return false;
         }
         else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && (!decoderInfo.isHardwareAccelerated() || decoderInfo.isSoftwareOnly())) {
-            LimeLog.info("Disallowing HEVC on software decoder: " + decoderInfo.getName());
+            RtLog.info("Disallowing HEVC on software decoder: " + decoderInfo.getName());
             return false;
         }
 
@@ -723,9 +723,9 @@ public class MediaCodecHelper {
         //
         // [5.3/H-1-1] MUST NOT drop more than 2 frames in 10 seconds (i.e less than 0.333 percent frame drop) for a 1080p 60 fps video session under load.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            LimeLog.info("Media performance class: " + Build.VERSION.MEDIA_PERFORMANCE_CLASS);
+            RtLog.info("Media performance class: " + Build.VERSION.MEDIA_PERFORMANCE_CLASS);
             if (Build.VERSION.MEDIA_PERFORMANCE_CLASS >= Build.VERSION_CODES.S) {
-                LimeLog.info("Allowing HEVC based on media performance class");
+                RtLog.info("Allowing HEVC based on media performance class");
                 return true;
             }
         }
@@ -733,7 +733,7 @@ public class MediaCodecHelper {
         // If the decoder supports FEATURE_LowLatency, we will assume it is fast and modern enough
         // to be preferable for streaming over H.264 decoders.
         if (decoderSupportsAndroidRLowLatency(decoderInfo, "video/hevc")) {
-            LimeLog.info("Allowing HEVC based on FEATURE_LowLatency support");
+            RtLog.info("Allowing HEVC based on FEATURE_LowLatency support");
             return true;
         }
 
@@ -755,11 +755,11 @@ public class MediaCodecHelper {
         // OMX.SEC.hevc.sw.dec
         //
         if (decoderInfo.getName().contains("sw")) {
-            LimeLog.info("Disallowing AV1 on software decoder: " + decoderInfo.getName());
+            RtLog.info("Disallowing AV1 on software decoder: " + decoderInfo.getName());
             return false;
         }
         else if (!decoderInfo.isHardwareAccelerated() || decoderInfo.isSoftwareOnly()) {
-            LimeLog.info("Disallowing AV1 on software decoder: " + decoderInfo.getName());
+            RtLog.info("Disallowing AV1 on software decoder: " + decoderInfo.getName());
             return false;
         }
 
@@ -818,7 +818,7 @@ public class MediaCodecHelper {
                 
                 // Check for preferred decoders
                 if (preferredDecoder.equalsIgnoreCase(codecInfo.getName())) {
-                    LimeLog.info("Preferred decoder choice is "+codecInfo.getName());
+                    RtLog.info("Preferred decoder choice is "+codecInfo.getName());
                     return codecInfo;
                 }
             }
@@ -831,14 +831,14 @@ public class MediaCodecHelper {
         // Use the new isSoftwareOnly() function on Android Q
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (!SHOULD_BYPASS_SOFTWARE_BLOCK && codecInfo.isSoftwareOnly()) {
-                LimeLog.info("Skipping software-only decoder: "+codecInfo.getName());
+                RtLog.info("Skipping software-only decoder: "+codecInfo.getName());
                 return true;
             }
         }
 
         // Check for explicitly blacklisted decoders
         if (isDecoderInList(blacklistedDecoderPrefixes, codecInfo.getName())) {
-            LimeLog.info("Skipping blacklisted decoder: "+codecInfo.getName());
+            RtLog.info("Skipping blacklisted decoder: "+codecInfo.getName());
             return true;
         }
 
@@ -867,7 +867,7 @@ public class MediaCodecHelper {
                         continue;
                     }
 
-                    LimeLog.info("First decoder choice is "+codecInfo.getName());
+                    RtLog.info("First decoder choice is "+codecInfo.getName());
                     return codecInfo;
                 }
             }
@@ -925,7 +925,7 @@ public class MediaCodecHelper {
                 // Find a decoder that supports the requested video format
                 for (String mime : codecInfo.getSupportedTypes()) {
                     if (mime.equalsIgnoreCase(mimeType)) {
-                        LimeLog.info("Examining decoder capabilities of " + codecInfo.getName() + " (round " + (i + 1) + ")");
+                        RtLog.info("Examining decoder capabilities of " + codecInfo.getName() + " (round " + (i + 1) + ")");
 
                         // Skip blacklisted codecs
                         if (isCodecBlacklisted(codecInfo)) {
@@ -935,19 +935,19 @@ public class MediaCodecHelper {
                         CodecCapabilities caps = codecInfo.getCapabilitiesForType(mime);
 
                         if (i == 0 && !decoderSupportsAndroidRLowLatency(codecInfo, mime)) {
-                            LimeLog.info("Skipping decoder that lacks FEATURE_LowLatency for round 1");
+                            RtLog.info("Skipping decoder that lacks FEATURE_LowLatency for round 1");
                             continue;
                         }
 
                         if (requiredProfile != -1) {
                             for (CodecProfileLevel profile : caps.profileLevels) {
                                 if (profile.profile == requiredProfile) {
-                                    LimeLog.info("Decoder " + codecInfo.getName() + " supports required profile");
+                                    RtLog.info("Decoder " + codecInfo.getName() + " supports required profile");
                                     return codecInfo;
                                 }
                             }
 
-                            LimeLog.info("Decoder " + codecInfo.getName() + " does NOT support required profile");
+                            RtLog.info("Decoder " + codecInfo.getName() + " does NOT support required profile");
                         } else {
                             return codecInfo;
                         }
@@ -984,13 +984,13 @@ public class MediaCodecHelper {
             
             // SMDK4xxx is Exynos 4 
             if (stringContainsIgnoreCase(cpuInfo, "SMDK4")) {
-                LimeLog.info("Found SMDK4 in /proc/cpuinfo");
+                RtLog.info("Found SMDK4 in /proc/cpuinfo");
                 return true;
             }
             
             // If we see "Exynos 4" also we'll count it
             if (stringContainsIgnoreCase(cpuInfo, "Exynos 4")) {
-                LimeLog.info("Found Exynos 4 in /proc/cpuinfo");
+                RtLog.info("Found Exynos 4 in /proc/cpuinfo");
                 return true;
             }
         } catch (Exception e) {
@@ -1003,7 +1003,7 @@ public class MediaCodecHelper {
             if (files != null) {
                 for (File f : files) {
                     if (stringContainsIgnoreCase(f.getName(), "exynos4")) {
-                        LimeLog.info("Found exynos4 in /sys/devices/system");
+                        RtLog.info("Found exynos4 in /sys/devices/system");
                         return true;
                     }
                 }

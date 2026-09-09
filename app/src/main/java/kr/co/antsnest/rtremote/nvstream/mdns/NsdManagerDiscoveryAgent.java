@@ -6,7 +6,7 @@ import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -31,7 +31,7 @@ public class NsdManagerDiscoveryAgent extends MdnsDiscoveryAgent {
         return new NsdManager.DiscoveryListener() {
             @Override
             public void onStartDiscoveryFailed(String serviceType, int errorCode) {
-                LimeLog.severe("NSD: Service discovery start failed: " + errorCode);
+                RtLog.severe("NSD: Service discovery start failed: " + errorCode);
 
                 // This listener is no longer pending after this failure
                 synchronized (listenerLock) {
@@ -47,7 +47,7 @@ public class NsdManagerDiscoveryAgent extends MdnsDiscoveryAgent {
 
             @Override
             public void onStopDiscoveryFailed(String serviceType, int errorCode) {
-                LimeLog.severe("NSD: Service discovery stop failed: " + errorCode);
+                RtLog.severe("NSD: Service discovery stop failed: " + errorCode);
 
                 // This listener is no longer active after this failure
                 synchronized (listenerLock) {
@@ -61,7 +61,7 @@ public class NsdManagerDiscoveryAgent extends MdnsDiscoveryAgent {
 
             @Override
             public void onDiscoveryStarted(String serviceType) {
-                LimeLog.info("NSD: Service discovery started");
+                RtLog.info("NSD: Service discovery started");
 
                 synchronized (listenerLock) {
                     if (pendingListener != this) {
@@ -77,7 +77,7 @@ public class NsdManagerDiscoveryAgent extends MdnsDiscoveryAgent {
 
             @Override
             public void onDiscoveryStopped(String serviceType) {
-                LimeLog.info("NSD: Service discovery stopped");
+                RtLog.info("NSD: Service discovery stopped");
 
                 synchronized (listenerLock) {
                     if (activeListener != this) {
@@ -97,18 +97,18 @@ public class NsdManagerDiscoveryAgent extends MdnsDiscoveryAgent {
                         return;
                     }
 
-                    LimeLog.info("NSD: Machine appeared: " + nsdServiceInfo.getServiceName());
+                    RtLog.info("NSD: Machine appeared: " + nsdServiceInfo.getServiceName());
 
                     NsdManager.ServiceInfoCallback serviceInfoCallback = new NsdManager.ServiceInfoCallback() {
                         @Override
                         public void onServiceInfoCallbackRegistrationFailed(int errorCode) {
-                            LimeLog.severe("NSD: Service info callback registration failed: " + errorCode);
+                            RtLog.severe("NSD: Service info callback registration failed: " + errorCode);
                             listener.notifyDiscoveryFailure(new RuntimeException("onServiceInfoCallbackRegistrationFailed(): " + errorCode));
                         }
 
                         @Override
                         public void onServiceUpdated(NsdServiceInfo nsdServiceInfo) {
-                            LimeLog.info("NSD: Machine resolved: " + nsdServiceInfo.getServiceName());
+                            RtLog.info("NSD: Machine resolved: " + nsdServiceInfo.getServiceName());
                             reportNewComputer(nsdServiceInfo.getServiceName(), nsdServiceInfo.getPort(),
                                     getV4Addrs(nsdServiceInfo.getHostAddresses()),
                                     getV6Addrs(nsdServiceInfo.getHostAddresses()));
@@ -137,7 +137,7 @@ public class NsdManagerDiscoveryAgent extends MdnsDiscoveryAgent {
                         return;
                     }
 
-                    LimeLog.info("NSD: Machine lost: " + nsdServiceInfo.getServiceName());
+                    RtLog.info("NSD: Machine lost: " + nsdServiceInfo.getServiceName());
 
                     NsdManager.ServiceInfoCallback serviceInfoCallback = serviceCallbacks.remove(nsdServiceInfo.getServiceName());
                     if (serviceInfoCallback != null) {

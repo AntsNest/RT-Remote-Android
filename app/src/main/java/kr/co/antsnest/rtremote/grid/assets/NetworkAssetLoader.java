@@ -2,7 +2,7 @@ package kr.co.antsnest.rtremote.grid.assets;
 
 import android.content.Context;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.binding.PlatformBinding;
 import kr.co.antsnest.rtremote.nvstream.http.NvHTTP;
 import kr.co.antsnest.rtremote.utils.ServerHelper;
@@ -29,10 +29,10 @@ public class NetworkAssetLoader {
         } catch (IOException ignored) {}
 
         if (in != null) {
-            LimeLog.info("Network asset load complete: " + tuple);
+            RtLog.info("Network asset load complete: " + tuple);
         }
         else {
-            LimeLog.info("Network asset load failed: " + tuple);
+            RtLog.info("Network asset load failed: " + tuple);
         }
 
         return in;

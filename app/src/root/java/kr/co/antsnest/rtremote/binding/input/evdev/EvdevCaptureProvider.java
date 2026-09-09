@@ -5,7 +5,7 @@ import android.os.Build;
 import android.os.Looper;
 import android.widget.Toast;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.binding.input.capture.InputCaptureProvider;
 
 import java.io.DataOutputStream;
@@ -88,7 +88,7 @@ public class EvdevCaptureProvider extends InputCaptureProvider {
             }
 
             // Wait for evdevreader's connection
-            LimeLog.info("Waiting for EvdevReader connection to port "+servSock.getLocalPort());
+            RtLog.info("Waiting for EvdevReader connection to port "+servSock.getLocalPort());
             try {
                 evdevSock = servSock.accept();
                 evdevIn = evdevSock.getInputStream();
@@ -97,7 +97,7 @@ public class EvdevCaptureProvider extends InputCaptureProvider {
                 e.printStackTrace();
                 return;
             }
-            LimeLog.info("EvdevReader connected from port "+evdevSock.getPort());
+            RtLog.info("EvdevReader connected from port "+evdevSock.getPort());
 
             while (!isInterrupted() && !shutdown) {
                 EvdevEvent event;

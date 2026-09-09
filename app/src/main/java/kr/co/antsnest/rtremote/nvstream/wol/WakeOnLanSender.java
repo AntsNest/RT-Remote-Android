@@ -6,7 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Scanner;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.nvstream.http.ComputerDetails;
 
 public class WakeOnLanSender {
@@ -120,7 +120,7 @@ public class WakeOnLanSender {
                 try {
                     macBytes[i] = (byte) Integer.parseInt(scan.next(), 16);
                 } catch (NumberFormatException e) {
-                    LimeLog.warning("Malformed MAC address: " + macAddress + " (index: " + i + ")");
+                    RtLog.warning("Malformed MAC address: " + macAddress + " (index: " + i + ")");
                     break;
                 }
             }

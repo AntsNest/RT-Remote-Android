@@ -17,7 +17,7 @@ import android.os.IBinder;
 import android.view.InputDevice;
 import android.widget.Toast;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.R;
 import kr.co.antsnest.rtremote.preferences.PreferenceConfiguration;
 
@@ -178,7 +178,7 @@ public class UsbDriverService extends Service implements UsbDriverListener {
             // Open the device
             UsbDeviceConnection connection = usbManager.openDevice(device);
             if (connection == null) {
-                LimeLog.warning("Unable to open USB device: "+device.getDeviceName());
+                RtLog.warning("Unable to open USB device: "+device.getDeviceName());
                 return;
             }
 
@@ -231,7 +231,7 @@ public class UsbDriverService extends Service implements UsbDriverListener {
 
     public static boolean kernelSupportsXboxOne() {
         String kernelVersion = System.getProperty("os.version");
-        LimeLog.info("Kernel Version: "+kernelVersion);
+        RtLog.info("Kernel Version: "+kernelVersion);
 
         if (kernelVersion == null) {
             // We'll assume this is some newer version of Android

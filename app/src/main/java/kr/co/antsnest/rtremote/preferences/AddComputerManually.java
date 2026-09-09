@@ -20,7 +20,7 @@ import kr.co.antsnest.rtremote.computers.ComputerManagerService;
 import kr.co.antsnest.rtremote.R;
 import kr.co.antsnest.rtremote.nvstream.http.ComputerDetails;
 import kr.co.antsnest.rtremote.nvstream.http.NvHTTP;
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 import kr.co.antsnest.rtremote.utils.Dialog;
 import kr.co.antsnest.rtremote.utils.ServerHelper;
 import kr.co.antsnest.rtremote.utils.SpinnerDialog;
@@ -233,11 +233,11 @@ public class AddComputerManually extends Activity {
         // Keep the SpinnerDialog open while testing connectivity
         if (!success && !wrongSiteLocal && !invalidInput) {
             // Run the test before dismissing the spinner because it can take a few seconds.
-            portTestResult = MoonBridge.testClientConnectivity(ServerHelper.CONNECTION_TEST_SERVER, 443,
-                    MoonBridge.ML_PORT_FLAG_TCP_47984 | MoonBridge.ML_PORT_FLAG_TCP_47989);
+            portTestResult = RtBridge.testClientConnectivity(ServerHelper.CONNECTION_TEST_SERVER, 443,
+                    RtBridge.ML_PORT_FLAG_TCP_47984 | RtBridge.ML_PORT_FLAG_TCP_47989);
         } else {
             // Don't bother with the test if we succeeded or the IP address was bogus
-            portTestResult = MoonBridge.ML_TEST_RESULT_INCONCLUSIVE;
+            portTestResult = RtBridge.ML_TEST_RESULT_INCONCLUSIVE;
         }
 
         dialog.dismiss();
@@ -256,7 +256,7 @@ public class AddComputerManually extends Activity {
         }
         else if (!success) {
             String dialogText;
-            if (portTestResult != MoonBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0)  {
+            if (portTestResult != RtBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0)  {
                 dialogText = getResources().getString(R.string.nettest_text_blocked);
             }
             else {

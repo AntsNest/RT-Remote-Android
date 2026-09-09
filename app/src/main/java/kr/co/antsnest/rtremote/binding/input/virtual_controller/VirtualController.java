@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.R;
 import kr.co.antsnest.rtremote.binding.input.ControllerHandler;
 
@@ -148,7 +148,7 @@ public class VirtualController {
 
     private static final void _DBG(String text) {
         if (_PRINT_DEBUG_INFORMATION) {
-            LimeLog.info("VirtualController: " + text);
+            RtLog.info("VirtualController: " + text);
         }
     }
 

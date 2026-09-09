@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.nvstream.http.ComputerDetails;
 import kr.co.antsnest.rtremote.nvstream.http.NvHTTP;
 
@@ -32,27 +32,27 @@ public class LegacyDatabaseReader {
         // greater than the allowable IP address length.
         try {
             details.localAddress = new ComputerDetails.AddressTuple(InetAddress.getByAddress(c.getBlob(2)).getHostAddress(), NvHTTP.DEFAULT_HTTP_PORT);
-            LimeLog.warning("DB: Legacy local address for " + details.name);
+            RtLog.warning("DB: Legacy local address for " + details.name);
         } catch (UnknownHostException e) {
             // This is probably a hostname/address with the prefix string
             String stringData = c.getString(2);
             if (stringData.startsWith(ADDRESS_PREFIX)) {
                 details.localAddress = new ComputerDetails.AddressTuple(c.getString(2).substring(ADDRESS_PREFIX.length()), NvHTTP.DEFAULT_HTTP_PORT);
             } else {
-                LimeLog.severe("DB: Corrupted local address for " + details.name);
+                RtLog.severe("DB: Corrupted local address for " + details.name);
             }
         }
 
         try {
             details.remoteAddress = new ComputerDetails.AddressTuple(InetAddress.getByAddress(c.getBlob(3)).getHostAddress(), NvHTTP.DEFAULT_HTTP_PORT);
-            LimeLog.warning("DB: Legacy remote address for " + details.name);
+            RtLog.warning("DB: Legacy remote address for " + details.name);
         } catch (UnknownHostException e) {
             // This is probably a hostname/address with the prefix string
             String stringData = c.getString(3);
             if (stringData.startsWith(ADDRESS_PREFIX)) {
                 details.remoteAddress = new ComputerDetails.AddressTuple(c.getString(3).substring(ADDRESS_PREFIX.length()), NvHTTP.DEFAULT_HTTP_PORT);
             } else {
-                LimeLog.severe("DB: Corrupted remote address for " + details.name);
+                RtLog.severe("DB: Corrupted remote address for " + details.name);
             }
         }
 

@@ -5,7 +5,7 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import org.json.JSONObject;
 import java.io.File;
 
@@ -30,7 +30,7 @@ public final class DiagnosticDelivery {
             String version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
             save(context, "rtremote-diag", version, "trigger=" + trigger + "\n" + snapshot, System.currentTimeMillis());
             resume(context);
-        } catch (Exception error) { LimeLog.warning("RTDIAG could not queue diagnostic"); }
+        } catch (Exception error) { RtLog.warning("RTDIAG could not queue diagnostic"); }
     }
     public static void resume(Context context) {
         if (outbox(context).pending().isEmpty()) return;
@@ -42,7 +42,7 @@ public final class DiagnosticDelivery {
                     .build();
             JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
             if (scheduler == null || scheduler.schedule(job) != JobScheduler.RESULT_SUCCESS)
-                LimeLog.warning("RTDIAG upload not scheduled; report retained");
-        } catch (Exception error) { LimeLog.warning("RTDIAG scheduling failed; report retained"); }
+                RtLog.warning("RTDIAG upload not scheduled; report retained");
+        } catch (Exception error) { RtLog.warning("RTDIAG scheduling failed; report retained"); }
     }
 }

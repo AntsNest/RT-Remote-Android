@@ -39,10 +39,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Base64;
 
-import kr.co.antsnest.rtremote.LimeLog;
-import kr.co.antsnest.rtremote.nvstream.http.LimelightCryptoProvider;
+import kr.co.antsnest.rtremote.RtLog;
+import kr.co.antsnest.rtremote.nvstream.http.RtCryptoProvider;
 
-public class AndroidCryptoProvider implements LimelightCryptoProvider {
+public class AndroidCryptoProvider implements RtCryptoProvider {
 
     private final File certFile;
     private final File keyFile;
@@ -85,7 +85,7 @@ public class AndroidCryptoProvider implements LimelightCryptoProvider {
 
         // If either file was missing, we definitely can't succeed
         if (certBytes == null || keyBytes == null) {
-            LimeLog.info("Missing cert or key; need to generate a new one");
+            RtLog.info("Missing cert or key; need to generate a new one");
             return false;
         }
 
@@ -97,13 +97,13 @@ public class AndroidCryptoProvider implements LimelightCryptoProvider {
             key = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
         } catch (CertificateException e) {
             // May happen if the cert is corrupt
-            LimeLog.warning("Corrupted certificate");
+            RtLog.warning("Corrupted certificate");
             return false;
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeySpecException e) {
             // May happen if the key is corrupt
-            LimeLog.warning("Corrupted key");
+            RtLog.warning("Corrupted key");
             return false;
         }
 
@@ -149,7 +149,7 @@ public class AndroidCryptoProvider implements LimelightCryptoProvider {
             throw new RuntimeException(e);
         }
 
-        LimeLog.info("Generated a new key pair");
+        RtLog.info("Generated a new key pair");
 
         // Save the resulting pair
         saveCertKeyPair();
@@ -180,7 +180,7 @@ public class AndroidCryptoProvider implements LimelightCryptoProvider {
             // Write the private out in PKCS8 format
             keyOut.write(key.getEncoded());
 
-            LimeLog.info("Saved generated key pair to disk");
+            RtLog.info("Saved generated key pair to disk");
         } catch (IOException e) {
             // This isn't good because it means we'll have
             // to re-pair next time

@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.binding.PlatformBinding;
 import kr.co.antsnest.rtremote.discovery.DiscoveryService;
 import kr.co.antsnest.rtremote.nvstream.NvConnection;
@@ -173,7 +173,7 @@ public class ComputerManagerService extends Service {
                         synchronized (tuple.networkLock) {
                             // Check if this poll has modified the details
                             if (!runPoll(tuple.computer, false, offlineCount)) {
-                                LimeLog.warning(tuple.computer.name + " is offline (try " + offlineCount + ")");
+                                RtLog.warning(tuple.computer.name + " is offline (try " + offlineCount + ")");
                                 offlineCount++;
                             } else {
                                 tuple.lastSuccessfulPollMs = SystemClock.elapsedRealtime();
@@ -208,7 +208,7 @@ public class ComputerManagerService extends Service {
                 for (PollingTuple tuple : pollingTuples) {
                     // Enforce the poll data TTL
                     if (SystemClock.elapsedRealtime() - tuple.lastSuccessfulPollMs > POLL_DATA_TTL_MS) {
-                        LimeLog.info("Timing out polled state for "+tuple.computer.name);
+                        RtLog.info("Timing out polled state for "+tuple.computer.name);
                         tuple.computer.state = ComputerDetails.State.UNKNOWN;
                     }
 
@@ -425,7 +425,7 @@ public class ComputerManagerService extends Service {
                 try {
                     // Kick off a blocking serverinfo poll on this machine
                     if (!addComputerBlocking(details)) {
-                        LimeLog.warning("Auto-discovered PC failed to respond: "+details);
+                        RtLog.warning("Auto-discovered PC failed to respond: "+details);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -439,7 +439,7 @@ public class ComputerManagerService extends Service {
 
             @Override
             public void notifyDiscoveryFailure(Exception e) {
-                LimeLog.severe("mDNS discovery failed");
+                RtLog.severe("mDNS discovery failed");
                 e.printStackTrace();
             }
         };
@@ -499,7 +499,7 @@ public class ComputerManagerService extends Service {
 
         // If the machine is reachable, it was successful
         if (fakeDetails.state == ComputerDetails.State.ONLINE) {
-            LimeLog.info("New PC ("+fakeDetails.name+") is UUID "+fakeDetails.uuid);
+            RtLog.info("New PC ("+fakeDetails.name+") is UUID "+fakeDetails.uuid);
 
             // Start a polling thread for this machine
             addTuple(fakeDetails);
@@ -569,13 +569,13 @@ public class ComputerManagerService extends Service {
 
             // Check if this is the PC we expected
             if (newDetails.uuid == null) {
-                LimeLog.severe("Polling returned no UUID!");
+                RtLog.severe("Polling returned no UUID!");
                 return null;
             }
             // details.uuid can be null on initial PC add
             else if (details.uuid != null && !details.uuid.equals(newDetails.uuid)) {
                 // We got the wrong PC!
-                LimeLog.info("Polling returned the wrong PC!");
+                RtLog.info("Polling returned the wrong PC!");
                 return null;
             }
 
@@ -710,9 +710,9 @@ public class ComputerManagerService extends Service {
 
     private boolean pollComputer(ComputerDetails details) throws InterruptedException {
         // Poll all addresses in parallel to speed up the process
-        LimeLog.info("Starting parallel poll for "+details.name+" ("+details.localAddress +", "+details.remoteAddress +", "+details.manualAddress+", "+details.ipv6Address+")");
+        RtLog.info("Starting parallel poll for "+details.name+" ("+details.localAddress +", "+details.remoteAddress +", "+details.manualAddress+", "+details.ipv6Address+")");
         ComputerDetails polledDetails = parallelPollPc(details);
-        LimeLog.info("Parallel poll for "+details.name+" returned address: "+details.activeAddress);
+        RtLog.info("Parallel poll for "+details.name+" returned address: "+details.activeAddress);
 
         if (polledDetails != null) {
             details.update(polledDetails);
@@ -753,7 +753,7 @@ public class ComputerManagerService extends Service {
             networkCallback = new ConnectivityManager.NetworkCallback() {
                 @Override
                 public void onAvailable(Network network) {
-                    LimeLog.info("Resetting PC state for new available network");
+                    RtLog.info("Resetting PC state for new available network");
                     synchronized (pollingTuples) {
                         for (PollingTuple tuple : pollingTuples) {
                             tuple.computer.state = ComputerDetails.State.UNKNOWN;
@@ -766,7 +766,7 @@ public class ComputerManagerService extends Service {
 
                 @Override
                 public void onLost(Network network) {
-                    LimeLog.info("Offlining PCs due to network loss");
+                    RtLog.info("Offlining PCs due to network loss");
                     synchronized (pollingTuples) {
                         for (PollingTuple tuple : pollingTuples) {
                             tuple.computer.state = ComputerDetails.State.OFFLINE;
@@ -896,7 +896,7 @@ public class ComputerManagerService extends Service {
 
                             List<NvApp> list = NvHTTP.getAppListByReader(new StringReader(appList));
                             if (list.isEmpty()) {
-                                LimeLog.warning("Empty app list received from "+computer.uuid);
+                                RtLog.warning("Empty app list received from "+computer.uuid);
 
                                 // The app list might actually be empty, so if we get an empty response a few times
                                 // in a row, we'll go ahead and believe it.
@@ -929,7 +929,7 @@ public class ComputerManagerService extends Service {
                                 }
                             }
                             else if (appList.isEmpty()) {
-                                LimeLog.warning("Null app list received from "+computer.uuid);
+                                RtLog.warning("Null app list received from "+computer.uuid);
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

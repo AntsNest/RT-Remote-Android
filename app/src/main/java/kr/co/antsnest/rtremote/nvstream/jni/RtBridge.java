@@ -4,7 +4,7 @@ import kr.co.antsnest.rtremote.nvstream.NvConnectionListener;
 import kr.co.antsnest.rtremote.nvstream.av.audio.AudioRenderer;
 import kr.co.antsnest.rtremote.nvstream.av.video.VideoDecoderRenderer;
 
-public class MoonBridge {
+public class RtBridge {
     /* See documentation in Limelight.h for information about these functions and constants */
 
     public static final AudioConfiguration AUDIO_CONFIGURATION_STEREO = new AudioConfiguration(2, 0x3);
@@ -129,7 +129,7 @@ public class MoonBridge {
     private static NvConnectionListener connectionListener;
 
     static {
-        System.loadLibrary("moonlight-core");
+        System.loadLibrary("rtcore");
         init();
     }
 
@@ -327,15 +327,15 @@ public class MoonBridge {
     }
 
     public static void setupBridge(VideoDecoderRenderer videoRenderer, AudioRenderer audioRenderer, NvConnectionListener connectionListener) {
-        MoonBridge.videoRenderer = videoRenderer;
-        MoonBridge.audioRenderer = audioRenderer;
-        MoonBridge.connectionListener = connectionListener;
+        RtBridge.videoRenderer = videoRenderer;
+        RtBridge.audioRenderer = audioRenderer;
+        RtBridge.connectionListener = connectionListener;
     }
 
     public static void cleanupBridge() {
-        MoonBridge.videoRenderer = null;
-        MoonBridge.audioRenderer = null;
-        MoonBridge.connectionListener = null;
+        RtBridge.videoRenderer = null;
+        RtBridge.audioRenderer = null;
+        RtBridge.connectionListener = null;
     }
 
     public static native int startConnection(String address, String appVersion, String gfeVersion,

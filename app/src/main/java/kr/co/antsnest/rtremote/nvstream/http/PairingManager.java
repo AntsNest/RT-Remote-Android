@@ -6,7 +6,7 @@ import org.bouncycastle.crypto.params.KeyParameter;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 
 import java.security.cert.Certificate;
 import java.io.*;
@@ -33,7 +33,7 @@ public class PairingManager {
         ALREADY_IN_PROGRESS
     }
     
-    public PairingManager(NvHTTP http, LimelightCryptoProvider cryptoProvider) {
+    public PairingManager(NvHTTP http, RtCryptoProvider cryptoProvider) {
         this.http = http;
         this.cert = cryptoProvider.getClientCertificate();
         this.pemCertBytes = cryptoProvider.getPemEncodedClientCertificate();
@@ -186,7 +186,7 @@ public class PairingManager {
         PairingHashAlgorithm hashAlgo;
 
         int serverMajorVersion = http.getServerMajorVersion(serverInfo);
-        LimeLog.info("Pairing with server generation: "+serverMajorVersion);
+        RtLog.info("Pairing with server generation: "+serverMajorVersion);
         if (serverMajorVersion >= 7) {
             // Gen 7+ uses SHA-256 hashing
             hashAlgo = new Sha256PairingHash();

@@ -78,9 +78,9 @@ JNIEnv* GetThreadEnv(void) {
 }
 
 JNIEXPORT void JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_init(JNIEnv *env, jclass clazz) {
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_init(JNIEnv *env, jclass clazz) {
     (*env)->GetJavaVM(env, &JVM);
-    GlobalBridgeClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "kr/co/antsnest/rtremote/nvstream/jni/MoonBridge"));
+    GlobalBridgeClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "kr/co/antsnest/rtremote/nvstream/jni/RtBridge"));
     BridgeDrSetupMethod = (*env)->GetStaticMethodID(env, clazz, "bridgeDrSetup", "(IIII)I");
     BridgeDrStartMethod = (*env)->GetStaticMethodID(env, clazz, "bridgeDrStart", "()V");
     BridgeDrStopMethod = (*env)->GetStaticMethodID(env, clazz, "bridgeDrStop", "()V");
@@ -452,7 +452,7 @@ hasFastAes() {
 }
 
 JNIEXPORT jint JNICALL
-Java_kr_co_antsnest_rtremote_nvstream_jni_MoonBridge_startConnection(JNIEnv *env, jclass clazz,
+Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_startConnection(JNIEnv *env, jclass clazz,
                                                            jstring address, jstring appVersion, jstring gfeVersion,
                                                            jstring rtspSessionUrl, jint serverCodecModeSupport,
                                                            jint width, jint height, jint fps,

@@ -7,9 +7,9 @@ import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.os.SystemClock;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.nvstream.input.ControllerPacket;
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -27,8 +27,8 @@ public abstract class AbstractXboxController extends AbstractController {
         super(deviceId, listener, device.getVendorId(), device.getProductId());
         this.device = device;
         this.connection = connection;
-        this.type = MoonBridge.LI_CTYPE_XBOX;
-        this.capabilities = MoonBridge.LI_CCAP_ANALOG_TRIGGERS | MoonBridge.LI_CCAP_RUMBLE;
+        this.type = RtBridge.LI_CTYPE_XBOX;
+        this.capabilities = RtBridge.LI_CCAP_ANALOG_TRIGGERS | RtBridge.LI_CCAP_RUMBLE;
         this.buttonFlags =
                 ControllerPacket.A_FLAG | ControllerPacket.B_FLAG | ControllerPacket.X_FLAG | ControllerPacket.Y_FLAG |
                         ControllerPacket.UP_FLAG | ControllerPacket.DOWN_FLAG | ControllerPacket.LEFT_FLAG | ControllerPacket.RIGHT_FLAG |
@@ -77,7 +77,7 @@ public abstract class AbstractXboxController extends AbstractController {
                         }
 
                         if (res == -1 && SystemClock.uptimeMillis() - lastMillis < 1000) {
-                            LimeLog.warning("Detected device I/O error");
+                            RtLog.warning("Detected device I/O error");
                             AbstractXboxController.this.stop();
                             break;
                         }
@@ -102,7 +102,7 @@ public abstract class AbstractXboxController extends AbstractController {
             UsbInterface iface = device.getInterface(i);
 
             if (!connection.claimInterface(iface, true)) {
-                LimeLog.warning("Failed to claim interfaces");
+                RtLog.warning("Failed to claim interfaces");
                 return false;
             }
         }
@@ -113,14 +113,14 @@ public abstract class AbstractXboxController extends AbstractController {
             UsbEndpoint endpt = iface.getEndpoint(i);
             if (endpt.getDirection() == UsbConstants.USB_DIR_IN) {
                 if (inEndpt != null) {
-                    LimeLog.warning("Found duplicate IN endpoint");
+                    RtLog.warning("Found duplicate IN endpoint");
                     return false;
                 }
                 inEndpt = endpt;
             }
             else if (endpt.getDirection() == UsbConstants.USB_DIR_OUT) {
                 if (outEndpt != null) {
-                    LimeLog.warning("Found duplicate OUT endpoint");
+                    RtLog.warning("Found duplicate OUT endpoint");
                     return false;
                 }
                 outEndpt = endpt;
@@ -129,7 +129,7 @@ public abstract class AbstractXboxController extends AbstractController {
 
         // Make sure the required endpoints were present
         if (inEndpt == null || outEndpt == null) {
-            LimeLog.warning("Missing required endpoint");
+            RtLog.warning("Missing required endpoint");
             return false;
         }
 

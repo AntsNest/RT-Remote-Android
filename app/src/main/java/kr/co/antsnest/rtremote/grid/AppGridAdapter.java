@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import kr.co.antsnest.rtremote.AppView;
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.R;
 import kr.co.antsnest.rtremote.grid.assets.CachedAppAssetLoader;
 import kr.co.antsnest.rtremote.grid.assets.DiskAssetLoader;
@@ -98,7 +98,7 @@ public class AppGridAdapter extends GenericGridAdapter<AppView.AppObject> {
             // We don't want to make them bigger before draw-time
             scalingDivisor = 1.0;
         }
-        LimeLog.info("Art scaling divisor: " + scalingDivisor);
+        RtLog.info("Art scaling divisor: " + scalingDivisor);
 
         if (loader != null) {
             // Cancel operations on the old loader

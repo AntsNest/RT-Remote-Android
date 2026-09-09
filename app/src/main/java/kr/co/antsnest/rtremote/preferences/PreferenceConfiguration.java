@@ -7,7 +7,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.view.Display;
 
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 
 public class PreferenceConfiguration {
     public enum FormatOption {
@@ -146,7 +146,7 @@ public class PreferenceConfiguration {
     public boolean vibrateFallbackToDevice;
     public int vibrateFallbackToDeviceStrength;
     public boolean touchscreenTrackpad;
-    public MoonBridge.AudioConfiguration audioConfiguration;
+    public RtBridge.AudioConfiguration audioConfiguration;
     public int framePacing;
     public boolean absoluteMouseMode;
     public boolean enableAudioFx;
@@ -550,13 +550,13 @@ public class PreferenceConfiguration {
 
         String audioConfig = prefs.getString(AUDIO_CONFIG_PREF_STRING, DEFAULT_AUDIO_CONFIG);
         if (audioConfig.equals("71")) {
-            config.audioConfiguration = MoonBridge.AUDIO_CONFIGURATION_71_SURROUND;
+            config.audioConfiguration = RtBridge.AUDIO_CONFIGURATION_71_SURROUND;
         }
         else if (audioConfig.equals("51")) {
-            config.audioConfiguration = MoonBridge.AUDIO_CONFIGURATION_51_SURROUND;
+            config.audioConfiguration = RtBridge.AUDIO_CONFIGURATION_51_SURROUND;
         }
         else /* if (audioConfig.equals("2")) */ {
-            config.audioConfiguration = MoonBridge.AUDIO_CONFIGURATION_STEREO;
+            config.audioConfiguration = RtBridge.AUDIO_CONFIGURATION_STEREO;
         }
 
         config.videoFormat = getVideoFormatValue(context);

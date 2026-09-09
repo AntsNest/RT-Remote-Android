@@ -4,9 +4,9 @@ import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 import kr.co.antsnest.rtremote.nvstream.input.ControllerPacket;
-import kr.co.antsnest.rtremote.nvstream.jni.MoonBridge;
+import kr.co.antsnest.rtremote.nvstream.jni.RtBridge;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -62,7 +62,7 @@ public class XboxOneController extends AbstractXboxController {
 
     public XboxOneController(UsbDevice device, UsbDeviceConnection connection, int deviceId, UsbDriverListener listener) {
         super(device, connection, deviceId, listener);
-        capabilities |= MoonBridge.LI_CCAP_TRIGGER_RUMBLE;
+        capabilities |= RtBridge.LI_CCAP_TRIGGER_RUMBLE;
     }
 
     private void processButtons(ByteBuffer buffer) {
@@ -110,7 +110,7 @@ public class XboxOneController extends AbstractXboxController {
         {
             case 0x20:
                 if (buffer.remaining() < 17) {
-                    LimeLog.severe("XBone button/axis read too small: "+buffer.remaining());
+                    RtLog.severe("XBone button/axis read too small: "+buffer.remaining());
                     return false;
                 }
 
@@ -120,7 +120,7 @@ public class XboxOneController extends AbstractXboxController {
 
             case 0x07:
                 if (buffer.remaining() < 4) {
-                    LimeLog.severe("XBone mode read too small: "+buffer.remaining());
+                    RtLog.severe("XBone mode read too small: "+buffer.remaining());
                     return false;
                 }
 
@@ -174,7 +174,7 @@ public class XboxOneController extends AbstractXboxController {
             // Send the initialization packet
             int res = connection.bulkTransfer(outEndpt, data, data.length, 3000);
             if (res != data.length) {
-                LimeLog.warning("Initialization transfer failed: "+res);
+                RtLog.warning("Initialization transfer failed: "+res);
                 return false;
             }
         }
@@ -194,7 +194,7 @@ public class XboxOneController extends AbstractXboxController {
         };
         int res = connection.bulkTransfer(outEndpt, data, data.length, 100);
         if (res != data.length) {
-            LimeLog.warning("Rumble transfer failed: "+res);
+            RtLog.warning("Rumble transfer failed: "+res);
         }
     }
 

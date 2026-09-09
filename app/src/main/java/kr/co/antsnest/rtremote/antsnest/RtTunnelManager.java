@@ -1,6 +1,6 @@
 package kr.co.antsnest.rtremote.antsnest;
 
-import kr.co.antsnest.rtremote.LimeLog;
+import kr.co.antsnest.rtremote.RtLog;
 
 /**
  * 앱 전역에서 하나뿐인 터널 세션을 관리한다.
@@ -51,7 +51,7 @@ public final class RtTunnelManager {
 
     private static boolean connectLocked(String deviceId, String password) {
         long startedAt = System.currentTimeMillis();
-        LimeLog.info("RTDIAG tunnel_connect_begin replacing=" + (active != null));
+        RtLog.info("RTDIAG tunnel_connect_begin replacing=" + (active != null));
         // 원격 QUIC 세션이 끊겨도 JNI 핸들이 남아 있으면 isConnected()가 잠시
         // true일 수 있다. 그 상태를 재사용하면 네트워크 요청 없이 127.0.0.1만
         // 조회하다가 일반 "방화벽/포트" 오류로 끝난다. 사용자가 다시 추가를
@@ -60,7 +60,7 @@ public final class RtTunnelManager {
 
         RtTunnel tunnel = new RtTunnel();
         if (!tunnel.connect(deviceId, password)) {
-            LimeLog.warning("RTDIAG tunnel_connect_failed elapsedMs=" +
+            RtLog.warning("RTDIAG tunnel_connect_failed elapsedMs=" +
                     (System.currentTimeMillis() - startedAt) + " error=" + tunnel.lastError());
             lastError = tunnel.lastError();
             tunnel.close();
@@ -71,10 +71,10 @@ public final class RtTunnelManager {
         // 절반만 되는 세션을 남기느니 여기서 실패로 끝내는 편이 낫다.
         for (int port : SUNSHINE_TCP) {
             int local = tunnel.openTcp(port);
-            LimeLog.info("RTDIAG tcp_bridge_open remote=" + port + " local=" + local);
+            RtLog.info("RTDIAG tcp_bridge_open remote=" + port + " local=" + local);
             if (local == 0) {
                 lastError = "TCP bridge failed for port " + port;
-                LimeLog.warning("RtTunnel: " + lastError);
+                RtLog.warning("RtTunnel: " + lastError);
                 tunnel.close();
                 return false;
             }
@@ -82,17 +82,17 @@ public final class RtTunnelManager {
                 // 동일 포트 바인드 실패(다른 앱이 점유). Moonlight 은 표준
                 // 포트만 알므로 이 세션은 성립할 수 없다.
                 lastError = "loopback port " + port + " unavailable (got " + local + ")";
-                LimeLog.warning("RtTunnel: " + lastError);
+                RtLog.warning("RtTunnel: " + lastError);
                 tunnel.close();
                 return false;
             }
         }
         for (int port : SUNSHINE_UDP) {
             int local = tunnel.openUdp(port);
-            LimeLog.info("RTDIAG udp_bridge_open remote=" + port + " local=" + local);
+            RtLog.info("RTDIAG udp_bridge_open remote=" + port + " local=" + local);
             if (local == 0 || local != port) {
                 lastError = "UDP bridge failed for port " + port;
-                LimeLog.warning("RtTunnel: " + lastError);
+                RtLog.warning("RtTunnel: " + lastError);
                 tunnel.close();
                 return false;
             }
@@ -101,7 +101,7 @@ public final class RtTunnelManager {
         active = tunnel;
         activeDeviceId = deviceId;
         lastError = null;
-        LimeLog.info("RTDIAG tunnel_connect_success elapsedMs=" +
+        RtLog.info("RTDIAG tunnel_connect_success elapsedMs=" +
                 (System.currentTimeMillis() - startedAt) + " sunshineBridges=ready");
         return true;
     }
@@ -137,11 +137,11 @@ public final class RtTunnelManager {
 
     private static void closeTunnelLocked() {
         if (active != null) {
-            LimeLog.info("RTDIAG tunnel_close_begin state=" + active.state());
+            RtLog.info("RTDIAG tunnel_close_begin state=" + active.state());
             long startedAt = System.currentTimeMillis();
             active.close();
             active = null;
-            LimeLog.info("RTDIAG tunnel_close_complete elapsedMs=" +
+            RtLog.info("RTDIAG tunnel_close_complete elapsedMs=" +
                     (System.currentTimeMillis() - startedAt));
         }
     }
