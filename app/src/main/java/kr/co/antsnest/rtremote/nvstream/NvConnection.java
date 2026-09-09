@@ -534,7 +534,7 @@ public class NvConnection {
                     contactAreaMajor, contactAreaMinor, rotation);
         }
         else {
-            return RtBridge.LI_ERR_UNSUPPORTED;
+            return RtBridge.RT_ERR_UNSUPPORTED;
         }
     }
 
@@ -546,7 +546,7 @@ public class NvConnection {
                     contactAreaMajor, contactAreaMinor, rotation, tilt);
         }
         else {
-            return RtBridge.LI_ERR_UNSUPPORTED;
+            return RtBridge.RT_ERR_UNSUPPORTED;
         }
     }
 
@@ -561,7 +561,7 @@ public class NvConnection {
             return RtBridge.sendControllerTouchEvent(controllerNumber, eventType, pointerId, x, y, pressure);
         }
         else {
-            return RtBridge.LI_ERR_UNSUPPORTED;
+            return RtBridge.RT_ERR_UNSUPPORTED;
         }
     }
 
@@ -571,7 +571,7 @@ public class NvConnection {
             return RtBridge.sendControllerMotionEvent(controllerNumber, motionType, x, y, z);
         }
         else {
-            return RtBridge.LI_ERR_UNSUPPORTED;
+            return RtBridge.RT_ERR_UNSUPPORTED;
         }
     }
 

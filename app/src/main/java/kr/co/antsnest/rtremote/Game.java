@@ -1596,37 +1596,37 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                return RtBridge.LI_TOUCH_EVENT_DOWN;
+                return RtBridge.RT_TOUCH_EVENT_DOWN;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
                 if ((event.getFlags() & MotionEvent.FLAG_CANCELED) != 0) {
-                    return RtBridge.LI_TOUCH_EVENT_CANCEL;
+                    return RtBridge.RT_TOUCH_EVENT_CANCEL;
                 }
                 else {
-                    return RtBridge.LI_TOUCH_EVENT_UP;
+                    return RtBridge.RT_TOUCH_EVENT_UP;
                 }
 
             case MotionEvent.ACTION_MOVE:
-                return RtBridge.LI_TOUCH_EVENT_MOVE;
+                return RtBridge.RT_TOUCH_EVENT_MOVE;
 
             case MotionEvent.ACTION_CANCEL:
                 // ACTION_CANCEL applies to *all* pointers in the gesture, so it maps to CANCEL_ALL
                 // rather than CANCEL. For a single pointer cancellation, that's indicated via
                 // FLAG_CANCELED on a ACTION_POINTER_UP.
                 // https://developer.android.com/develop/ui/views/touch-and-input/gestures/multi
-                return RtBridge.LI_TOUCH_EVENT_CANCEL_ALL;
+                return RtBridge.RT_TOUCH_EVENT_CANCEL_ALL;
 
             case MotionEvent.ACTION_HOVER_ENTER:
             case MotionEvent.ACTION_HOVER_MOVE:
-                return RtBridge.LI_TOUCH_EVENT_HOVER;
+                return RtBridge.RT_TOUCH_EVENT_HOVER;
 
             case MotionEvent.ACTION_HOVER_EXIT:
-                return RtBridge.LI_TOUCH_EVENT_HOVER_LEAVE;
+                return RtBridge.RT_TOUCH_EVENT_HOVER_LEAVE;
 
             case MotionEvent.ACTION_BUTTON_PRESS:
             case MotionEvent.ACTION_BUTTON_RELEASE:
-                return RtBridge.LI_TOUCH_EVENT_BUTTON_ONLY;
+                return RtBridge.RT_TOUCH_EVENT_BUTTON_ONLY;
 
             default:
                return -1;
@@ -1692,7 +1692,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 return rotationDegrees;
             }
         }
-        return RtBridge.LI_ROT_UNKNOWN;
+        return RtBridge.RT_ROT_UNKNOWN;
     }
 
     private static float[] polarToCartesian(float r, float theta) {
@@ -1753,13 +1753,13 @@ public class Game extends Activity implements SurfaceHolder.Callback,
     private boolean sendPenEventForPointer(View view, MotionEvent event, byte eventType, byte toolType, int pointerIndex) {
         byte penButtons = 0;
         if ((event.getButtonState() & MotionEvent.BUTTON_STYLUS_PRIMARY) != 0) {
-            penButtons |= RtBridge.LI_PEN_BUTTON_PRIMARY;
+            penButtons |= RtBridge.RT_PEN_BUTTON_PRIMARY;
         }
         if ((event.getButtonState() & MotionEvent.BUTTON_STYLUS_SECONDARY) != 0) {
-            penButtons |= RtBridge.LI_PEN_BUTTON_SECONDARY;
+            penButtons |= RtBridge.RT_PEN_BUTTON_SECONDARY;
         }
 
-        byte tiltDegrees = RtBridge.LI_TILT_UNKNOWN;
+        byte tiltDegrees = RtBridge.RT_TILT_UNKNOWN;
         InputDevice dev = event.getDevice();
         if (dev != null) {
             if (dev.getMotionRange(MotionEvent.AXIS_TILT, event.getSource()) != null) {
@@ -1773,17 +1773,17 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 normalizedCoords[0], normalizedCoords[1],
                 getPressureOrDistance(event, pointerIndex),
                 normalizedContactArea[0], normalizedContactArea[1],
-                getRotationDegrees(event, pointerIndex), tiltDegrees) != RtBridge.LI_ERR_UNSUPPORTED;
+                getRotationDegrees(event, pointerIndex), tiltDegrees) != RtBridge.RT_ERR_UNSUPPORTED;
     }
 
     private static byte convertToolTypeToStylusToolType(MotionEvent event, int pointerIndex) {
         switch (event.getToolType(pointerIndex)) {
             case MotionEvent.TOOL_TYPE_ERASER:
-                return RtBridge.LI_TOOL_TYPE_ERASER;
+                return RtBridge.RT_TOOL_TYPE_ERASER;
             case MotionEvent.TOOL_TYPE_STYLUS:
-                return RtBridge.LI_TOOL_TYPE_PEN;
+                return RtBridge.RT_TOOL_TYPE_PEN;
             default:
-                return RtBridge.LI_TOOL_TYPE_UNKNOWN;
+                return RtBridge.RT_TOOL_TYPE_UNKNOWN;
         }
     }
 
@@ -1798,7 +1798,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
             boolean handledStylusEvent = false;
             for (int i = 0; i < event.getPointerCount(); i++) {
                 byte toolType = convertToolTypeToStylusToolType(event, i);
-                if (toolType == RtBridge.LI_TOOL_TYPE_UNKNOWN) {
+                if (toolType == RtBridge.RT_TOOL_TYPE_UNKNOWN) {
                     // Not a stylus pointer, so skip it
                     continue;
                 }
@@ -1816,14 +1816,14 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
         else if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
             // Cancel impacts all active pointers
-            return conn.sendPenEvent(RtBridge.LI_TOUCH_EVENT_CANCEL_ALL, RtBridge.LI_TOOL_TYPE_UNKNOWN, (byte)0,
+            return conn.sendPenEvent(RtBridge.RT_TOUCH_EVENT_CANCEL_ALL, RtBridge.RT_TOOL_TYPE_UNKNOWN, (byte)0,
                     0, 0, 0, 0, 0,
-                    RtBridge.LI_ROT_UNKNOWN, RtBridge.LI_TILT_UNKNOWN) != RtBridge.LI_ERR_UNSUPPORTED;
+                    RtBridge.RT_ROT_UNKNOWN, RtBridge.RT_TILT_UNKNOWN) != RtBridge.RT_ERR_UNSUPPORTED;
         }
         else {
             // Up, Down, and Hover events are specific to the action index
             byte toolType = convertToolTypeToStylusToolType(event, event.getActionIndex());
-            if (toolType == RtBridge.LI_TOOL_TYPE_UNKNOWN) {
+            if (toolType == RtBridge.RT_TOOL_TYPE_UNKNOWN) {
                 // Not a stylus event
                 return false;
             }
@@ -1838,7 +1838,7 @@ public class Game extends Activity implements SurfaceHolder.Callback,
                 normalizedCoords[0], normalizedCoords[1],
                 getPressureOrDistance(event, pointerIndex),
                 normalizedContactArea[0], normalizedContactArea[1],
-                getRotationDegrees(event, pointerIndex)) != RtBridge.LI_ERR_UNSUPPORTED;
+                getRotationDegrees(event, pointerIndex)) != RtBridge.RT_ERR_UNSUPPORTED;
     }
 
     private boolean trySendTouchEvent(View view, MotionEvent event) {
@@ -1858,9 +1858,9 @@ public class Game extends Activity implements SurfaceHolder.Callback,
         }
         else if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
             // Cancel impacts all active pointers
-            return conn.sendTouchEvent(RtBridge.LI_TOUCH_EVENT_CANCEL_ALL, 0,
+            return conn.sendTouchEvent(RtBridge.RT_TOUCH_EVENT_CANCEL_ALL, 0,
                     0, 0, 0, 0, 0,
-                    RtBridge.LI_ROT_UNKNOWN) != RtBridge.LI_ERR_UNSUPPORTED;
+                    RtBridge.RT_ROT_UNKNOWN) != RtBridge.RT_ERR_UNSUPPORTED;
         }
         else {
             // Up, Down, and Hover events are specific to the action index

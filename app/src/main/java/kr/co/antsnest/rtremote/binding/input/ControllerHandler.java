@@ -601,7 +601,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
         // We can't use the platform API, so we'll have to just guess based on the gamepad type.
         // If this is a PlayStation controller with a touchpad, we know it has a clickpad.
-        return type == RtBridge.LI_CTYPE_PS;
+        return type == RtBridge.RT_CTYPE_PS;
     }
 
     private static boolean isExternal(InputDevice dev) {
@@ -1156,23 +1156,23 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
             switch (currentBatteryStatus) {
                 case BatteryState.STATUS_UNKNOWN:
-                    state = RtBridge.LI_BATTERY_STATE_UNKNOWN;
+                    state = RtBridge.RT_BATTERY_STATE_UNKNOWN;
                     break;
 
                 case BatteryState.STATUS_CHARGING:
-                    state = RtBridge.LI_BATTERY_STATE_CHARGING;
+                    state = RtBridge.RT_BATTERY_STATE_CHARGING;
                     break;
 
                 case BatteryState.STATUS_DISCHARGING:
-                    state = RtBridge.LI_BATTERY_STATE_DISCHARGING;
+                    state = RtBridge.RT_BATTERY_STATE_DISCHARGING;
                     break;
 
                 case BatteryState.STATUS_NOT_CHARGING:
-                    state = RtBridge.LI_BATTERY_STATE_NOT_CHARGING;
+                    state = RtBridge.RT_BATTERY_STATE_NOT_CHARGING;
                     break;
 
                 case BatteryState.STATUS_FULL:
-                    state = RtBridge.LI_BATTERY_STATE_FULL;
+                    state = RtBridge.RT_BATTERY_STATE_FULL;
                     break;
 
                 default:
@@ -1180,7 +1180,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             }
 
             if (Float.isNaN(currentBatteryCapacity)) {
-                percentage = RtBridge.LI_BATTERY_PERCENTAGE_UNKNOWN;
+                percentage = RtBridge.RT_BATTERY_PERCENTAGE_UNKNOWN;
             }
             else {
                 percentage = (byte)(currentBatteryCapacity * 100);
@@ -1674,7 +1674,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
         return conn.sendControllerTouchEvent((byte)context.controllerNumber, touchType,
                 event.getPointerId(pointerIndex),
-                normalizedX, normalizedY, normalizedPressure) != RtBridge.LI_ERR_UNSUPPORTED;
+                normalizedX, normalizedY, normalizedPressure) != RtBridge.RT_ERR_UNSUPPORTED;
     }
 
     public boolean tryHandleTouchpadEvent(MotionEvent event) {
@@ -1718,21 +1718,21 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                touchType = RtBridge.LI_TOUCH_EVENT_DOWN;
+                touchType = RtBridge.RT_TOUCH_EVENT_DOWN;
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
                 if ((event.getFlags() & MotionEvent.FLAG_CANCELED) != 0) {
-                    touchType = RtBridge.LI_TOUCH_EVENT_CANCEL;
+                    touchType = RtBridge.RT_TOUCH_EVENT_CANCEL;
                 }
                 else {
-                    touchType = RtBridge.LI_TOUCH_EVENT_UP;
+                    touchType = RtBridge.RT_TOUCH_EVENT_UP;
                 }
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                touchType = RtBridge.LI_TOUCH_EVENT_MOVE;
+                touchType = RtBridge.RT_TOUCH_EVENT_MOVE;
                 break;
 
             case MotionEvent.ACTION_CANCEL:
@@ -1740,7 +1740,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 // rather than CANCEL. For a single pointer cancellation, that's indicated via
                 // FLAG_CANCELED on a ACTION_POINTER_UP.
                 // https://developer.android.com/develop/ui/views/touch-and-input/gestures/multi
-                touchType = RtBridge.LI_TOUCH_EVENT_CANCEL_ALL;
+                touchType = RtBridge.RT_TOUCH_EVENT_CANCEL_ALL;
                 break;
 
             case MotionEvent.ACTION_BUTTON_PRESS:
@@ -1789,8 +1789,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         }
         else if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
             // Cancel impacts all active pointers
-            return conn.sendControllerTouchEvent((byte)context.controllerNumber, RtBridge.LI_TOUCH_EVENT_CANCEL_ALL,
-                    0, 0, 0, 0) != RtBridge.LI_ERR_UNSUPPORTED;
+            return conn.sendControllerTouchEvent((byte)context.controllerNumber, RtBridge.RT_TOUCH_EVENT_CANCEL_ALL,
+                    0, 0, 0, 0) != RtBridge.RT_ERR_UNSUPPORTED;
         }
         else {
             // Down and Up events impact the action index pointer
@@ -2201,7 +2201,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                     }
                 }
 
-                if (motionType == RtBridge.LI_MOTION_TYPE_GYRO) {
+                if (motionType == RtBridge.RT_MOTION_TYPE_GYRO) {
                     // Convert from rad/s to deg/s
                     conn.sendControllerMotionEvent((byte) controllerNumber,
                             motionType,
@@ -2241,10 +2241,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 // sensors disappear and reappear. By storing the desired report rate, we can
                 // reapply the desired motion sensor configuration after they reappear.
                 switch (motionType) {
-                    case RtBridge.LI_MOTION_TYPE_ACCEL:
+                    case RtBridge.RT_MOTION_TYPE_ACCEL:
                         deviceContext.accelReportRateHz = reportRateHz;
                         break;
-                    case RtBridge.LI_MOTION_TYPE_GYRO:
+                    case RtBridge.RT_MOTION_TYPE_GYRO:
                         deviceContext.gyroReportRateHz = reportRateHz;
                         break;
                 }
@@ -2257,7 +2257,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 }
 
                 switch (motionType) {
-                    case RtBridge.LI_MOTION_TYPE_ACCEL:
+                    case RtBridge.RT_MOTION_TYPE_ACCEL:
                         if (deviceContext.accelListener != null) {
                             sm.unregisterListener(deviceContext.accelListener);
                             deviceContext.accelListener = null;
@@ -2270,7 +2270,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                             sm.registerListener(deviceContext.accelListener, accelSensor, 1000000 / reportRateHz);
                         }
                         break;
-                    case RtBridge.LI_MOTION_TYPE_GYRO:
+                    case RtBridge.RT_MOTION_TYPE_GYRO:
                         if (deviceContext.gyroListener != null) {
                             sm.unregisterListener(deviceContext.gyroListener);
                             deviceContext.gyroListener = null;
@@ -3021,10 +3021,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             public void run() {
                 // Turn back on any sensors that should be reporting but are currently unregistered
                 if (accelReportRateHz != 0 && accelListener == null) {
-                    handleSetMotionEventState(controllerNumber, RtBridge.LI_MOTION_TYPE_ACCEL, accelReportRateHz);
+                    handleSetMotionEventState(controllerNumber, RtBridge.RT_MOTION_TYPE_ACCEL, accelReportRateHz);
                 }
                 if (gyroReportRateHz != 0 && gyroListener == null) {
-                    handleSetMotionEventState(controllerNumber, RtBridge.LI_MOTION_TYPE_GYRO, gyroReportRateHz);
+                    handleSetMotionEventState(controllerNumber, RtBridge.RT_MOTION_TYPE_GYRO, gyroReportRateHz);
                 }
             }
         };
@@ -3063,13 +3063,13 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             byte type;
             switch (inputDevice.getVendorId()) {
                 case 0x045e: // Microsoft
-                    type = RtBridge.LI_CTYPE_XBOX;
+                    type = RtBridge.RT_CTYPE_XBOX;
                     break;
                 case 0x054c: // Sony
-                    type = RtBridge.LI_CTYPE_PS;
+                    type = RtBridge.RT_CTYPE_PS;
                     break;
                 case 0x057e: // Nintendo
-                    type = RtBridge.LI_CTYPE_NINTENDO;
+                    type = RtBridge.RT_CTYPE_NINTENDO;
                     break;
                 default:
                     // Consult SDL's controller type list to see if it knows
@@ -3108,10 +3108,10 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
             // Most of the advanced InputDevice capabilities came in Android S
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (quadVibrators) {
-                    capabilities |= RtBridge.LI_CCAP_RUMBLE | RtBridge.LI_CCAP_TRIGGER_RUMBLE;
+                    capabilities |= RtBridge.RT_CCAP_RUMBLE | RtBridge.RT_CCAP_TRIGGER_RUMBLE;
                 }
                 else if (vibratorManager != null || vibrator != null) {
-                    capabilities |= RtBridge.LI_CCAP_RUMBLE;
+                    capabilities |= RtBridge.RT_CCAP_RUMBLE;
                 }
 
                 // Calling InputDevice.getBatteryState() to see if a battery is present
@@ -3120,35 +3120,35 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 // external gamepad devices on Android S. If it turns out that no battery
                 // is actually present, we'll just report unknown battery state to the host.
                 if (external) {
-                    capabilities |= RtBridge.LI_CCAP_BATTERY_STATE;
+                    capabilities |= RtBridge.RT_CCAP_BATTERY_STATE;
                 }
 
                 // Light.hasRgbControl() was totally broken prior to Android 14.
                 // It always returned true because LIGHT_CAPABILITY_RGB was defined as 0,
                 // so we will just guess RGB is supported if it's a PlayStation controller.
-                if (hasRgbLed && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE || type == RtBridge.LI_CTYPE_PS)) {
-                    capabilities |= RtBridge.LI_CCAP_RGB_LED;
+                if (hasRgbLed && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE || type == RtBridge.RT_CTYPE_PS)) {
+                    capabilities |= RtBridge.RT_CCAP_RGB_LED;
                 }
             }
 
             // Report analog triggers if we have at least one trigger axis
             if (leftTriggerAxis != -1 || rightTriggerAxis != -1) {
-                capabilities |= RtBridge.LI_CCAP_ANALOG_TRIGGERS;
+                capabilities |= RtBridge.RT_CCAP_ANALOG_TRIGGERS;
             }
 
             // Report sensors if the input device has them or we're using built-in sensors for a built-in controller
             if (sensorManager != null && sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-                capabilities |= RtBridge.LI_CCAP_ACCEL;
+                capabilities |= RtBridge.RT_CCAP_ACCEL;
             }
             if (sensorManager != null && sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null) {
-                capabilities |= RtBridge.LI_CCAP_GYRO;
+                capabilities |= RtBridge.RT_CCAP_GYRO;
             }
 
             byte reportedType;
-            if (type != RtBridge.LI_CTYPE_PS && sensorManager != null) {
+            if (type != RtBridge.RT_CTYPE_PS && sensorManager != null) {
                 // Override the detected controller type if we're emulating motion sensors on an Xbox controller
                 Toast.makeText(activityContext, activityContext.getResources().getText(R.string.toast_controller_type_changed), Toast.LENGTH_LONG).show();
-                reportedType = RtBridge.LI_CTYPE_UNKNOWN;
+                reportedType = RtBridge.RT_CTYPE_UNKNOWN;
 
                 // Remember that we should enable the clickpad emulation combo (Select+LB) for this device
                 needsClickpadEmulation = true;
@@ -3160,16 +3160,16 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
 
             // We can perform basic rumble with any vibrator
             if (vibrator != null) {
-                capabilities |= RtBridge.LI_CCAP_RUMBLE;
+                capabilities |= RtBridge.RT_CCAP_RUMBLE;
             }
 
             // Shield controllers use special APIs for rumble and battery state
             if (sceManager.isRecognizedDevice(inputDevice)) {
-                capabilities |= RtBridge.LI_CCAP_RUMBLE | RtBridge.LI_CCAP_BATTERY_STATE;
+                capabilities |= RtBridge.RT_CCAP_RUMBLE | RtBridge.RT_CCAP_BATTERY_STATE;
             }
 
             if ((inputDevice.getSources() & InputDevice.SOURCE_TOUCHPAD) == InputDevice.SOURCE_TOUCHPAD) {
-                capabilities |= RtBridge.LI_CCAP_TOUCHPAD;
+                capabilities |= RtBridge.RT_CCAP_TOUCHPAD;
 
                 // Use the platform API or internal heuristics to determine if this has a clickpad
                 if (hasButtonUnderTouchpad(inputDevice, type)) {
@@ -3228,7 +3228,7 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
                 gyroListener = null;
 
                 // Send a gyro event to ensure the virtual controller is stationary
-                conn.sendControllerMotionEvent((byte) controllerNumber, RtBridge.LI_MOTION_TYPE_GYRO, 0.f, 0.f, 0.f);
+                conn.sendControllerMotionEvent((byte) controllerNumber, RtBridge.RT_MOTION_TYPE_GYRO, 0.f, 0.f, 0.f);
             }
             if (accelListener != null) {
                 sensorManager.unregisterListener(accelListener);

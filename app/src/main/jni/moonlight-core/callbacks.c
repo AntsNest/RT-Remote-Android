@@ -343,7 +343,7 @@ void BridgeClSetHdrMode(bool enabled) {
     SS_HDR_METADATA hdrMetadata;
 
     // Check if HDR metadata was provided
-    if (enabled && LiGetHdrMetadata(&hdrMetadata)) {
+    if (enabled && RtGetHdrMetadata(&hdrMetadata)) {
         hdrMetadataByteArray = (*env)->NewByteArray(env, sizeof(SS_HDR_METADATA));
         (*env)->SetByteArrayRegion(env, hdrMetadataByteArray, 0, sizeof(SS_HDR_METADATA), (jbyte*)&hdrMetadata);
     }
@@ -499,7 +499,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_startConnection(JNIEnv *env, 
         streamConfig.encryptionFlags = ENCFLG_ALL;
     }
 
-    int ret = LiStartConnection(&serverInfo,
+    int ret = RtStartConnection(&serverInfo,
                                 &streamConfig,
                                 &BridgeConnListenerCallbacks,
                                 &BridgeVideoRendererCallbacks,

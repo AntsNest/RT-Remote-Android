@@ -62,7 +62,7 @@ public class XboxOneController extends AbstractXboxController {
 
     public XboxOneController(UsbDevice device, UsbDeviceConnection connection, int deviceId, UsbDriverListener listener) {
         super(device, connection, deviceId, listener);
-        capabilities |= RtBridge.LI_CCAP_TRIGGER_RUMBLE;
+        capabilities |= RtBridge.RT_CCAP_TRIGGER_RUMBLE;
     }
 
     private void processButtons(ByteBuffer buffer) {

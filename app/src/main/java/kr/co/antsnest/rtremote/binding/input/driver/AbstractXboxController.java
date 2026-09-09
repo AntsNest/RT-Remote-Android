@@ -27,8 +27,8 @@ public abstract class AbstractXboxController extends AbstractController {
         super(deviceId, listener, device.getVendorId(), device.getProductId());
         this.device = device;
         this.connection = connection;
-        this.type = RtBridge.LI_CTYPE_XBOX;
-        this.capabilities = RtBridge.LI_CCAP_ANALOG_TRIGGERS | RtBridge.LI_CCAP_RUMBLE;
+        this.type = RtBridge.RT_CTYPE_XBOX;
+        this.capabilities = RtBridge.RT_CCAP_ANALOG_TRIGGERS | RtBridge.RT_CCAP_RUMBLE;
         this.buttonFlags =
                 ControllerPacket.A_FLAG | ControllerPacket.B_FLAG | ControllerPacket.X_FLAG | ControllerPacket.Y_FLAG |
                         ControllerPacket.UP_FLAG | ControllerPacket.DOWN_FLAG | ControllerPacket.LEFT_FLAG | ControllerPacket.RIGHT_FLAG |

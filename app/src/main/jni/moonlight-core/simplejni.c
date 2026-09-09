@@ -12,24 +12,24 @@
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseMove(JNIEnv *env, jclass clazz, jshort deltaX, jshort deltaY) {
-    LiSendMouseMoveEvent(deltaX, deltaY);
+    RtSendMouseMoveEvent(deltaX, deltaY);
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMousePosition(JNIEnv *env, jclass clazz,
         jshort x, jshort y, jshort referenceWidth, jshort referenceHeight) {
-    LiSendMousePositionEvent(x, y, referenceWidth, referenceHeight);
+    RtSendMousePositionEvent(x, y, referenceWidth, referenceHeight);
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseMoveAsMousePosition(JNIEnv *env, jclass clazz,
         jshort deltaX, jshort deltaY, jshort referenceWidth, jshort referenceHeight) {
-    LiSendMouseMoveAsMousePositionEvent(deltaX, deltaY, referenceWidth, referenceHeight);
+    RtSendMouseMoveAsMousePositionEvent(deltaX, deltaY, referenceWidth, referenceHeight);
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseButton(JNIEnv *env, jclass clazz, jbyte buttonEvent, jbyte mouseButton) {
-    LiSendMouseButtonEvent(buttonEvent, mouseButton);
+    RtSendMouseButtonEvent(buttonEvent, mouseButton);
 }
 
 JNIEXPORT void JNICALL
@@ -38,7 +38,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMultiControllerInput(JNIE
                                                            jbyte leftTrigger, jbyte rightTrigger,
                                                            jshort leftStickX, jshort leftStickY,
                                                            jshort rightStickX, jshort rightStickY) {
-    LiSendMultiControllerEvent(controllerNumber, activeGamepadMask, buttonFlags,
+    RtSendMultiControllerEvent(controllerNumber, activeGamepadMask, buttonFlags,
         leftTrigger, rightTrigger, leftStickX, leftStickY, rightStickX, rightStickY);
 }
 
@@ -48,7 +48,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendTouchEvent(JNIEnv *env, j
                                                           jfloat x, jfloat y, jfloat pressureOrDistance,
                                                           jfloat contactAreaMajor, jfloat contactAreaMinor,
                                                           jshort rotation) {
-    return LiSendTouchEvent(eventType, pointerId, x, y, pressureOrDistance,
+    return RtSendTouchEvent(eventType, pointerId, x, y, pressureOrDistance,
                             contactAreaMajor, contactAreaMinor, rotation);
 }
 
@@ -58,7 +58,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendPenEvent(JNIEnv *env, jcl
                                                         jfloat x, jfloat y, jfloat pressureOrDistance,
                                                         jfloat contactAreaMajor, jfloat contactAreaMinor,
                                                         jshort rotation, jbyte tilt) {
-    return LiSendPenEvent(eventType, toolType, penButtons, x, y, pressureOrDistance,
+    return RtSendPenEvent(eventType, toolType, penButtons, x, y, pressureOrDistance,
                           contactAreaMajor, contactAreaMinor, rotation, tilt);
 }
 
@@ -69,7 +69,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendControllerArrivalEvent(JN
                                                                       jbyte type,
                                                                       jint supportedButtonFlags,
                                                                       jshort capabilities) {
-    return LiSendControllerArrivalEvent(controllerNumber, activeGamepadMask, type, supportedButtonFlags, capabilities);
+    return RtSendControllerArrivalEvent(controllerNumber, activeGamepadMask, type, supportedButtonFlags, capabilities);
 }
 
 JNIEXPORT jint JNICALL
@@ -78,7 +78,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendControllerTouchEvent(JNIE
                                                                     jbyte eventType,
                                                                     jint pointerId, jfloat x,
                                                                     jfloat y, jfloat pressure) {
-    return LiSendControllerTouchEvent(controllerNumber, eventType, pointerId, x, y, pressure);
+    return RtSendControllerTouchEvent(controllerNumber, eventType, pointerId, x, y, pressure);
 }
 
 JNIEXPORT jint JNICALL
@@ -86,7 +86,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendControllerMotionEvent(JNI
                                                                      jbyte controllerNumber,
                                                                      jbyte motionType, jfloat x,
                                                                      jfloat y, jfloat z) {
-    return LiSendControllerMotionEvent(controllerNumber, motionType, x, y, z);
+    return RtSendControllerMotionEvent(controllerNumber, motionType, x, y, z);
 }
 
 JNIEXPORT jint JNICALL
@@ -94,44 +94,44 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendControllerBatteryEvent(JN
                                                                       jbyte controllerNumber,
                                                                       jbyte batteryState,
                                                                       jbyte batteryPercentage) {
-    return LiSendControllerBatteryEvent(controllerNumber, batteryState, batteryPercentage);
+    return RtSendControllerBatteryEvent(controllerNumber, batteryState, batteryPercentage);
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendKeyboardInput(JNIEnv *env, jclass clazz, jshort keyCode, jbyte keyAction, jbyte modifiers, jbyte flags) {
-    LiSendKeyboardEvent2(keyCode, keyAction, modifiers, flags);
+    RtSendKeyboardEvent2(keyCode, keyAction, modifiers, flags);
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseHighResScroll(JNIEnv *env, jclass clazz, jshort scrollAmount) {
-    LiSendHighResScrollEvent(scrollAmount);
+    RtSendHighResScrollEvent(scrollAmount);
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendMouseHighResHScroll(JNIEnv *env, jclass clazz, jshort scrollAmount) {
-    LiSendHighResHScrollEvent(scrollAmount);
+    RtSendHighResHScrollEvent(scrollAmount);
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_sendUtf8Text(JNIEnv *env, jclass clazz, jstring text) {
     const char* utf8Text = (*env)->GetStringUTFChars(env, text, NULL);
-    LiSendUtf8TextEvent(utf8Text, strlen(utf8Text));
+    RtSendUtf8TextEvent(utf8Text, strlen(utf8Text));
     (*env)->ReleaseStringUTFChars(env, text, utf8Text);
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_stopConnection(JNIEnv *env, jclass clazz) {
-    LiStopConnection();
+    RtStopConnection();
 }
 
 JNIEXPORT void JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_interruptConnection(JNIEnv *env, jclass clazz) {
-    LiInterruptConnection();
+    RtInterruptConnection();
 }
 
 JNIEXPORT jstring JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getStageName(JNIEnv *env, jclass clazz, jint stage) {
-    return (*env)->NewStringUTF(env, LiGetStageName(stage));
+    return (*env)->NewStringUTF(env, RtGetStageName(stage));
 }
 
 JNIEXPORT jstring JNICALL
@@ -140,7 +140,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_findExternalAddressIP4(JNIEnv
     struct in_addr wanAddr;
     const char* stunHostNameStr = (*env)->GetStringUTFChars(env, stunHostName, NULL);
 
-    err = LiFindExternalAddressIP4(stunHostNameStr, stunPort, &wanAddr.s_addr);
+    err = RtFindExternalAddressIP4(stunHostNameStr, stunPort, &wanAddr.s_addr);
     (*env)->ReleaseStringUTFChars(env, stunHostName, stunHostNameStr);
 
     if (err == 0) {
@@ -160,12 +160,12 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_findExternalAddressIP4(JNIEnv
 
 JNIEXPORT jint JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getPendingAudioDuration(JNIEnv *env, jclass clazz) {
-    return LiGetPendingAudioDuration();
+    return RtGetPendingAudioDuration();
 }
 
 JNIEXPORT jint JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getPendingVideoFrames(JNIEnv *env, jclass clazz) {
-    return LiGetPendingVideoFrames();
+    return RtGetPendingVideoFrames();
 }
 
 JNIEXPORT jint JNICALL
@@ -173,7 +173,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_testClientConnectivity(JNIEnv
     int ret;
     const char* testServerHostNameStr = (*env)->GetStringUTFChars(env, testServerHostName, NULL);
 
-    ret = LiTestClientConnectivity(testServerHostNameStr, (unsigned short)referencePort, testFlags);
+    ret = RtTestClientConnectivity(testServerHostNameStr, (unsigned short)referencePort, testFlags);
 
     (*env)->ReleaseStringUTFChars(env, testServerHostName, testServerHostNameStr);
 
@@ -182,12 +182,12 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_testClientConnectivity(JNIEnv
 
 JNIEXPORT jint JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getPortFlagsFromStage(JNIEnv *env, jclass clazz, jint stage) {
-    return LiGetPortFlagsFromStage(stage);
+    return RtGetPortFlagsFromStage(stage);
 }
 
 JNIEXPORT jint JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getPortFlagsFromTerminationErrorCode(JNIEnv *env, jclass clazz, jint errorCode) {
-    return LiGetPortFlagsFromTerminationErrorCode(errorCode);
+    return RtGetPortFlagsFromTerminationErrorCode(errorCode);
 }
 
 JNIEXPORT jstring JNICALL
@@ -195,7 +195,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_stringifyPortFlags(JNIEnv *en
     const char* separatorStr = (*env)->GetStringUTFChars(env, separator, NULL);
     char outputBuffer[512];
 
-    LiStringifyPortFlags(portFlags, separatorStr, outputBuffer, sizeof(outputBuffer));
+    RtStringifyPortFlags(portFlags, separatorStr, outputBuffer, sizeof(outputBuffer));
 
     (*env)->ReleaseStringUTFChars(env, separator, separatorStr);
     return (*env)->NewStringUTF(env, outputBuffer);
@@ -205,7 +205,7 @@ JNIEXPORT jlong JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getEstimatedRttInfo(JNIEnv *env, jclass clazz) {
     uint32_t rtt, variance;
 
-    if (!LiGetEstimatedRttInfo(&rtt, &variance)) {
+    if (!RtGetEstimatedRttInfo(&rtt, &variance)) {
         return -1;
     }
 
@@ -214,7 +214,7 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getEstimatedRttInfo(JNIEnv *e
 
 JNIEXPORT jstring JNICALL
 Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_getLaunchUrlQueryParameters(JNIEnv *env, jclass clazz) {
-    return (*env)->NewStringUTF(env, LiGetLaunchUrlQueryParameters());
+    return (*env)->NewStringUTF(env, RtGetLaunchUrlQueryParameters());
 }
 
 JNIEXPORT jbyte JNICALL
@@ -225,12 +225,12 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_guessControllerType(JNIEnv *e
             switch (arrControllers[i].m_eControllerType) {
                 case k_eControllerType_XBox360Controller:
                 case k_eControllerType_XBoxOneController:
-                    return LI_CTYPE_XBOX;
+                    return RT_CTYPE_XBOX;
 
                 case k_eControllerType_PS3Controller:
                 case k_eControllerType_PS4Controller:
                 case k_eControllerType_PS5Controller:
-                    return LI_CTYPE_PS;
+                    return RT_CTYPE_PS;
 
                 case k_eControllerType_WiiController:
                 case k_eControllerType_SwitchProController:
@@ -238,14 +238,14 @@ Java_kr_co_antsnest_rtremote_nvstream_jni_RtBridge_guessControllerType(JNIEnv *e
                 case k_eControllerType_SwitchJoyConRight:
                 case k_eControllerType_SwitchJoyConPair:
                 case k_eControllerType_SwitchInputOnlyController:
-                    return LI_CTYPE_NINTENDO;
+                    return RT_CTYPE_NINTENDO;
 
                 default:
-                    return LI_CTYPE_UNKNOWN;
+                    return RT_CTYPE_UNKNOWN;
             }
         }
     }
-    return LI_CTYPE_UNKNOWN;
+    return RT_CTYPE_UNKNOWN;
 }
 
 JNIEXPORT jboolean JNICALL
