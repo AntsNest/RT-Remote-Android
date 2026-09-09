@@ -1,4 +1,4 @@
-# Android.mk for moonlight-core and binding
+# Android.mk for rtcore and binding
 MY_LOCAL_PATH := $(call my-dir)
 
 include $(call all-subdir-makefiles)
